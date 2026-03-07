@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MJ SMART APPS</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    
+    <link rel="stylesheet" href="index.css">
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;900&family=Playfair+Display:wght@600&display=swap" rel="stylesheet">
+
+            <div class="flex flex-col items-center justify-center text-center py-6" style="width: 100%;">
+              <h2 class="text-6xl sm:text-7xl md:text-8xl font-extrabold uppercase drop-shadow-2xl"
+                  style="font-family: 'Montserrat', sans-serif; letter-spacing: 10px; color: #ffffff; margin-bottom: 0.5rem;">
+                ABISHEK ELECTRICALS
+              </h2>
+
+              <span class="mt-3 text-lg sm:text-xl md:text-2xl font-bold tracking-widest uppercase"
+                  style="font-family: 'Playfair Display', serif; letter-spacing: 3px; color: #E0E0E0; display: block;">
+              DESIGNED BY MJ SMART APPS
+              </span>
+            </div>
+
+            <nav>
+                <a href="#" class="nav-link active" data-view="dashboard-view">
+                    <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3L2 12h3v8z" /></svg>
+                    <span>Dashboard</span>
+                </a>
+                <a href="#" class="nav-link" data-view="stock-view">
+                    <svg viewBox="0 0 24 24"><path d="M20 6h-4V4c0-1.1-.9-2-2-2h-4c-1.1 0-2 .9-2 2v2H4c-1.1 0-2 .9-2 2v11c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-6 0h-4V4h4v2z" /></svg>
+                    <span>Stock</span>
+                </a>
+                <a href="#" class="nav-link" data-view="quotation-view">
+                    <svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
+                    <span>Quotation</span>
+                </a>
+                <a href="#" class="nav-link" data-view="invoice-view">
+                    <svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm-1 12H5c-.55 0-1-.45-1-1v-4c0-.55.45-1 1-1h14c.55 0 1 .45 1 1v4c0 .55-.45 1-1 1z" /></svg>
+                    <span>Invoice</span>
+                </a>
+                <a href="#" class="nav-link" data-view="sales-view">
+                    <svg viewBox="0 0 24 24"><path d="M22 6h-6V4c0-1.1-.9-2-2-2h-4c-1.1 0-2 .9-2 2v2H2c-1.1 0-2 .9-2 2v11c0 1.1.9 2 2 2h20c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zM4 17h16V9H4v8z" /></svg>
+                    <span>Sales</span>
+                </a>
+                <a href="#" class="nav-link" data-view="purchase-view">
+                    <svg viewBox="0 0 24 24"><path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/></svg>
+                    <span>Purchase</span>
+                </a>
+                <a href="#" class="nav-link" data-view="report-view">
+                    <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
+                    <span>Report</span>
+                </a>
+                <a href="#" class="nav-link" data-view="settings-view">
+                    <svg viewBox="0 0 24 24"><path d="M12 15.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5s2.5 1.12 2.5 2.5s-1.12 2.5-2.5 2.5zm7.31-6.19c-.27-.12-.55-.16-.85-.12c-.59-.01-1.18.06-1.76.19c-.38.08-.75.2-.95.34c-1.28-1.55-2.8-2.51-4.71-2.91c-.24-.05-.48-.08-.72-.11c-.55-.06-1.1-.09-1.65-.09c-2.31 0-4.62.24-6.84.75c-.39.09-.77.21-1.15.35c-.44.15-1.05.3-1.44.47c-.22.1-.4.2-.64.33c-.09.05-.17.11-.25.18l-1.42 1.42c-.22.22-.22.58 0 .8l1.42 1.42c.07.07.13.15.18.25c.13.24.23.42.33.64c.17.39.32.99.47 1.44c.14.38.26.76.35 1.15c.51 2.22.75 4.53.75 6.84c0 .55-.03 1.1-.09 1.65c-.03.24-.06.48-.11.72c-.4 1.91-1.36 3.43-2.91 4.71c-.14.2-.26.57-.34.95c-.13.58-.2 1.17-.19 1.76c.04.3.08.58.12.85l1.42 1.42c.22.22.58.22.8 0l1.42-1.42c.07-.07.15-.13.25-.18c.24-.13.42-.23.33-.64c.39-.17.99-.32 1.44-.47c.38-.14.76-.26.35-.64c-.17-.39-.32-.99-.47-1.44c-.14-.38-.26-.76-.35-1.15c-.51-2.22-.75-4.53-.75-6.84c0-.55.03-1.1.09-1.65c.03-.24.06-.48.11-.72c.4-1.91 1.36-3.43 2.91-4.71c.14-.2.26-.57.34-.95c.13-.58.2-1.17.19-1.76c-.04-.3-.08-.58-.12-.85l-1.42-1.42z" /></svg>
+                    <span>Designer</span>
+                </a>
+            </nav>
+        </header>
+
+        <div class="main-content">
+            <div id="dashboard-view" class="view active">
+                <div class="dashboard-grid">
+                    <div class="dashboard-card">
+                        <span class="card-icon">📦</span>
+                        <div class="card-title">Total Stock Items</div>
+                        <div class="card-value" id="total-stock">0</div>
+                    </div>
+                    <div class="dashboard-card">
+                        <span class="card-icon">🔻</span>
+                        <div class="card-title">Low Stock Items</div>
+                        <div class="card-value" id="low-stock">0</div>
+                    </div>
+                    <div class="dashboard-card">
+                        <span class="card-icon">💸</span>
+                        <div class="card-title">Today's Sales Count</div>
+                        <div class="card-value" id="today-sales-count">0</div>
+                    </div>
+                    <div class="dashboard-card">
+                        <span class="card-icon">💰</span>
+                        <div class="card-title">Today Total Amount</div>
+                        <div class="card-value" id="today-total-amount">₹0.00</div>
+                    </div>
+                    <div class="dashboard-card" onclick="showView('report-view')" style="cursor: pointer; background: linear-gradient(135deg, var(--primary-light), var(--primary-color)); color: white;">
+                        <span class="card-icon" style="color: white;">📊</span>
+                        <div class="card-title" style="color: #e0e0e0;">Daily Report</div>
+                        <div class="card-value" style="color: white; font-size: 2rem;">View / Print</div>
+                    </div>
+
+                    <div class="dashboard-card today-sales-card">
+                        <div class="today-sales-item">
+                            <div class="card-title">Cash</div>
+                            <div class="card-value" id="today-cash">₹0.00</div>
+                        </div>
+                        <div class="today-sales-item">
+                            <div class="card-title">Online</div>
+                            <div class="card-value" id="today-online">₹0.00</div>
+                        </div>
+                        <div class="today-sales-item">
+                            <div class="card-title">Credit</div>
+                            <div class="card-value" id="today-credit">₹0.00</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="low-stock-list-container" style="margin-top: 2rem; display: none;">
+                    <h2>Low Stock Items</h2>
+                    <ul class="low-stock-list"></ul>
+                </div>
+            </div>
+
+            <div id="stock-view" class="view">
+                <h1>Stock Management</h1>
+                
+                <div class="stock-header-actions" style="display: flex; gap: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap;">
+                    <button class="btn-success" onclick="document.getElementById('stock-file-input').click()">Import CSV</button>
+                    <input type="file" id="stock-file-input" style="display:none;" accept=".csv">
+                    <button class="btn-primary" onclick="exportCSV()">Export CSV</button>
+                </div>
+                
+                <form id="add-stock-form">
+                    <h2>Add/Update Stock</h2>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="stock-code">Item Code</label>
+                            <input type="text" id="stock-code" placeholder="e.g., PNT101" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="stock-name">Item Name</label>
+                            <input type="text" id="stock-name" placeholder="e.g., Red Paint" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="stock-quantity">Quantity</label>
+                            <input type="number" id="stock-quantity" min="0" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="stock-price">Unit Price (₹)</label>
+                            <input type="number" id="stock-price" min="0" step="0.01" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="stock-low">Low Stock</label>
+                            <input type="number" id="stock-low" min="0" value="10" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="stock-hsn">HSN Code</label>
+                            <input type="text" id="stock-hsn" placeholder="e.g., 8536">
+                        </div>
+                    </div>
+                    <button type="submit" class="btn-success" id="add-stock-btn">Add Stock</button>
+                </form>
+                <div style="margin-top: 2rem;" class="stock-table-container">
+                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 1rem;">
+                        <h2 style="margin-bottom: 0;">Current Stock</h2>
+                        <div style="display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;">
+                            <div class="form-group" style="margin-bottom: 0; width: 300px; max-width: 100%;">
+                                <input type="text" id="stock-search" placeholder="Search by item code or name...">
+                            </div>
+                            <button class="btn-danger" id="delete-selected-btn" style="margin: 0;">Delete Selected</button>
+                        </div>
+                    </div>
+                    <table id="stock-table">
+                        <thead>
+                            <tr>
+                                <th><input type="checkbox" id="select-all-checkbox"></th>
+                                <th>Item Code</th>
+                                <th>Item Name</th>
+                                <th>HSN Code</th>
+                                <th>Quantity</th>
+                                <th>Unit Price</th>
+                                <th>Low Stock</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="quotation-view" class="view">
+                <h1>Create Quotation</h1>
+                <form id="quotation-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="quotation-no">Quotation No.</label>
+                            <input type="text" id="quotation-no" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label for="quotation-date">Quotation Date</label>
+                            <input type="date" id="quotation-date" required>
+                        </div>
+                    </div>
+                    <h2>Customer Details (Optional)</h2>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="quotation-customer-name">Customer Name</label>
+                            <input type="text" id="quotation-customer-name">
+                        </div>
+                        <div class="form-group">
+                            <label for="quotation-customer-phone">Phone</label>
+                            <input type="tel" id="quotation-customer-phone">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="quotation-customer-address">Address</label>
+                        <textarea id="quotation-customer-address" rows="2"></textarea>
+                    </div>
+                    <h2>Quotation Items</h2>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="quotation-item-stock-code">Item Code</label>
+                            <input type="text" id="quotation-item-stock-code" placeholder="Enter item code" list="stock-codes">
+                        </div>
+                        <div class="form-group">
+                            <label for="quotation-item-stock-name">Item Name</label>
+                            <input type="text" id="quotation-item-stock-name" placeholder="Enter item name" list="stock-names">
+                        </div>
+                        <div class="form-group">
+                            <label for="quotation-item-quantity">Quantity</label>
+                            <input type="number" id="quotation-item-quantity" min="1">
+                        </div>
+                        <div class="form-group">
+                            <label for="quotation-item-price">Unit Price</label>
+                            <input type="number" id="quotation-item-price" readonly>
+                        </div>
+                    </div>
+                    <p style="margin-bottom: 1rem;">Available: <span id="quotation-available-stock">0</span></p>
+                    <button type="button" class="btn-success" id="add-quotation-item-btn">Add Item</button>
+                    <table id="quotation-items-table">
+                        <thead>
+                            <tr>
+                                <th>Item Code</th>
+                                <th>Item Name</th>
+                                <th>Quantity</th>
+                                <th>Unit Price</th>
+                                <th>Total</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                    <div style="margin-top: 2rem;">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>
+                                    <input type="checkbox" id="quotation-gst-checkbox"> Apply GST
+                                </label>
+                            </div>
+                            <div class="form-group">
+                                <label for="quotation-gst-percentage">GST (%)</label>
+                                <input type="number" id="quotation-gst-percentage" min="0" max="100" value="18">
+                            </div>
+                            <div class="form-group">
+                                <label for="quotation-discount">Discount (%)</label>
+                                <input type="number" id="quotation-discount" min="0" max="100" value="0">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="quotation-total-amount">Total Amount</label>
+                                <input type="text" id="quotation-total-amount" readonly>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="text-align: right; margin-top: 1rem;">
+                        <button type="button" class="btn-primary" id="save-print-quotation-btn">Print Quotation</button>
+                    </div>
+                </form>
+            </div>
+
+            <div id="invoice-view" class="view">
+                <h1>Create Invoice</h1>
+                <form id="invoice-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="invoice-no">Invoice No.</label>
+                            <input type="text" id="invoice-no" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label for="invoice-date">Invoice Date</label>
+                            <input type="date" id="invoice-date" required>
+                        </div>
+                    </div>
+                    <h2>Customer Details (Optional)</h2>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="customer-name">Customer Name</label>
+                            <input type="text" id="customer-name">
+                        </div>
+                        <div class="form-group">
+                            <label for="customer-phone">Phone</label>
+                            <input type="tel" id="customer-phone">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="customer-address">Address</label>
+                        <textarea id="customer-address" rows="2"></textarea>
+                    </div>
+                    <h2>Invoice Items</h2>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="item-stock-code">Item Code</label>
+                            <input type="text" id="item-stock-code" placeholder="Enter item code" list="stock-codes">
+                            <datalist id="stock-codes"></datalist>
+                        </div>
+                        <div class="form-group">
+                            <label for="item-stock-name">Item Name</label>
+                            <input type="text" id="item-stock-name" placeholder="Enter item name" list="stock-names">
+                            <datalist id="stock-names"></datalist>
+                        </div>
+                        <div class="form-group">
+                            <label for="item-quantity">Quantity</label>
+                            <input type="number" id="item-quantity" min="1">
+                        </div>
+                        <div class="form-group">
+                            <label for="item-price">Unit Price</label>
+                            <input type="number" id="item-price" readonly>
+                        </div>
+                    </div>
+                    <p style="margin-bottom: 1rem;">Available: <span id="available-stock">0</span></p>
+                    <button type="button" class="btn-success" id="add-item-btn">Add Item</button>
+                    <table id="invoice-items-table">
+                        <thead>
+                            <tr>
+                                <th>Item Code</th>
+                                <th>Item Name</th>
+                                <th>Quantity</th>
+                                <th>Unit Price</th>
+                                <th>Total</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                    <div style="margin-top: 2rem;">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>
+                                    <input type="checkbox" id="gst-checkbox"> Apply GST
+                                </label>
+                            </div>
+                            <div class="form-group">
+                                <label for="gst-percentage">GST (%)</label>
+                                <input type="number" id="gst-percentage" min="0" max="100" value="18">
+                            </div>
+                            <div class="form-group">
+                                <label for="discount">Discount (%)</label>
+                                <input type="number" id="discount" min="0" max="100" value="0">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="total-amount">Total Amount</label>
+                                <input type="text" id="total-amount" readonly>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="payment-status">Payment Status</label>
+                                <select id="payment-status">
+                                    <option value="Full Paid">Full Paid</option>
+                                    <option value="Partially Paid">Partially Paid</option>
+                                    <option value="Not Paid">Not Paid</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="payment-mode">Payment Mode</label>
+                                <select id="payment-mode">
+                                    <option value="Cash">Cash</option>
+                                    <option value="Online">Online</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-row" id="paid-balance-row" style="display: none;">
+                            <div class="form-group">
+                                <label for="paid-amount">Paid Amount</label>
+                                <input type="number" id="paid-amount" min="0">
+                            </div>
+                            <div class="form-group">
+                                <label for="balance-amount">Balance</label>
+                                <input type="number" id="balance-amount" readonly>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="text-align: right; margin-top: 1rem;">
+                        <button type="button" class="btn-primary" id="save-print-btn">Save & Print Invoice</button>
+                    </div>
+                </form>
+            </div>
+
+            <div id="sales-view" class="view">
+                <div class="header-row">
+                    <h1>Sales History</h1>
+                    <div class="form-group" style="margin-bottom: 0; width: 250px;">
+                        <input type="date" id="sales-date-search">
+                    </div>
+                </div>
+                
+                <div class="status-filters">
+                    <label><input type="radio" name="sales-status-filter" value="All" checked> All</label>
+                    <label><input type="radio" name="sales-status-filter" value="Partially Paid"> Partially Paid</label>
+                    <label><input type="radio" name="sales-status-filter" value="Not Paid"> Not Paid</label>
+                </div>
+
+                <div class="form-group">
+                    <label for="sales-search">Search Sales</label>
+                    <input type="text" id="sales-search" placeholder="Search by invoice number or customer name...">
+                </div>
+                <table id="sales-table">
+                    <thead>
+                        <tr>
+                            <th>Invoice No.</th>
+                            <th>Date</th>
+                            <th>Customer</th>
+                            <th>Total Amount</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+                <div id="return-modal" class="modal">
+                    <div class="modal-content">
+                        <span class="close-btn">&times;</span>
+                        <h2 style="margin-bottom: 1.5rem;">Process Return</h2>
+                        <div class="form-group">
+                            <label for="return-invoice-no">Invoice No.</label>
+                            <input type="text" id="return-invoice-no" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label for="return-item">Item to Return</label>
+                            <select id="return-item"></select>
+                        </div>
+                        <div class="form-group">
+                            <label for="return-quantity">Quantity to Return</label>
+                            <input type="number" id="return-quantity" min="1">
+                        </div>
+                        <button class="btn-danger" id="process-return-btn" style="width: 100%;">Process Return</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="purchase-view" class="view">
+                <h1>Purchases</h1>
+                
+                <div id="purchase-dashboard-cards" class="dashboard-grid" style="margin-bottom: 2rem;">
+                    <div class="dashboard-card">
+                        <span class="card-icon">💰</span>
+                        <div class="card-title">Total Amount</div>
+                        <div class="card-value" id="purchase-total-amt">₹0.00</div>
+                    </div>
+                    <div class="dashboard-card">
+                        <span class="card-icon">💸</span>
+                        <div class="card-title">Total Paid Amount</div>
+                        <div class="card-value" id="purchase-total-paid">₹0.00</div>
+                    </div>
+                    <div class="dashboard-card">
+                        <span class="card-icon">⚖️</span>
+                        <div class="card-title">Total Balance Amount</div>
+                        <div class="card-value" id="purchase-total-bal" style="color: var(--danger-color);">₹0.00</div>
+                    </div>
+                </div>
+
+                <form id="add-purchase-form">
+                    <h2>Add New Purchase</h2>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="purchase-date">Date</label>
+                            <input type="date" id="purchase-date" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="purchase-dealer-name">Dealer Name</label>
+                            <input type="text" id="purchase-dealer-name" placeholder="Enter dealer name" list="dealer-names" required>
+                            <datalist id="dealer-names"></datalist>
+                        </div>
+                        <div class="form-group">
+                            <label for="purchase-company-name">Company Name</label>
+                            <input type="text" id="purchase-company-name" placeholder="Enter company name" list="company-names" required>
+                            <datalist id="company-names"></datalist>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="purchase-total-amount">Total Amount (₹)</label>
+                            <input type="number" id="purchase-total-amount" min="0" step="0.01" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="purchase-paid-amount">Paid Amount (₹)</label>
+                            <input type="number" id="purchase-paid-amount" min="0" step="0.01" required>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn-success" id="add-purchase-btn">Add Purchase</button>
+                </form>
+
+                <div style="margin-top: 2rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 1rem;">
+                        <h2 style="margin-bottom: 0;">Purchase History</h2>
+                        <div class="form-group" style="margin-bottom: 0; width: 300px; max-width: 100%;">
+                            <input type="text" id="purchase-search" placeholder="Search by dealer or company...">
+                        </div>
+                    </div>
+                    <table id="purchase-table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Dealer Name</th>
+                                <th>Company Name</th>
+                                <th>Total Amount</th>
+                                <th>Paid Amount</th>
+                                <th>Balance</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="invoice-modal" class="modal">
+                <div class="modal-content">
+                    <span class="close-btn" onclick="document.getElementById('invoice-modal').style.display='none'">&times;</span>
+                    <h2>Invoice Bill</h2>
+                    <div id="invoice-details-container"></div>
+                    <h3 style="margin-top:1rem;">Return Item</h3>
+                    <select id="return-item-select"></select>
+                    <input type="number" id="return-item-qty" min="1" placeholder="Quantity">
+                    <button class="btn-danger" onclick="processReturnInInvoice()">Process Return</button>
+                </div>
+            </div>
+
+            <div id="report-view" class="view">
+                <div class="header-row">
+                    <h1>Daily Sales Report</h1>
+                    <div class="form-group" style="margin-bottom: 0; width: 250px;">
+                        <input type="date" id="report-date-input" onchange="renderDailyReport()">
+                    </div>
+                </div>
+
+                <div class="charts-grid">
+                    <div class="chart-card">
+                        <h3>Sales by Payment Mode</h3>
+                        <div class="chart-container">
+                            <canvas id="paymentModeChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-card">
+                        <h3>Top 10 High Sale Items</h3>
+                        <div class="chart-container">
+                            <canvas id="topItemsChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="daily-report-print-area">
+                    <table class="invoice-table" style="width: 100%; border-collapse: collapse; margin-bottom: 2rem;">
+                        <thead>
+                            <tr style="background-color: #f6f9fc;">
+                                <th style="padding: 1rem; border: 1px solid #ccc; text-align: left;">Invoice No.</th>
+                                <th style="padding: 1rem; border: 1px solid #ccc; text-align: left;">Customer</th>
+                                <th style="padding: 1rem; border: 1px solid #ccc; text-align: left;">Mode</th>
+                                <th style="padding: 1rem; border: 1px solid #ccc; text-align: right;">Amount (₹)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="daily-report-table-body"></tbody>
+                    </table>
+                    <div style="display: flex; justify-content: space-between; align-items: flex-end; background-color: var(--card-bg); padding: 2rem; border-radius: var(--border-radius-lg); box-shadow: var(--shadow);">
+                        <div style="font-size: 1.1rem;">
+                            <p><strong>Cash:</strong> <span id="report-cash-total">₹0.00</span></p>
+                            <p><strong>Online:</strong> <span id="report-online-total">₹0.00</span></p>
+                            <p><strong>Credit:</strong> <span id="report-credit-total">₹0.00</span></p>
+                        </div>
+                        <div style="font-size: 1.5rem; color: var(--primary-color); font-weight: bold;">
+                            <p>Total: <span id="report-grand-total">₹0.00</span></p>
+                        </div>
+                    </div>
+                </div>
+                <button class="btn-primary" onclick="printDailyReport()" style="width: 100%; margin-top: 2rem;">🖨 Print Report</button>
+            </div>
+            
+            <div id="settings-view" class="view">
+                <h1>Settings</h1>
+                <form id="settings-form">
+                    <div class="form-group">
+                        <label for="company-name">Company Name</label>
+                        <input type="text" id="company-name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="company-phone">Phone No.</label>
+                        <input type="tel" id="company-phone" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="company-address">Address</label>
+                        <textarea id="company-address" rows="3" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="company-email">Email</label>
+                        <input type="email" id="company-email">
+                    </div>
+                    <div class="form-group">
+                        <label for="company-gstin">GSTIN</label>
+                        <input type="text" id="company-gstin">
+                    </div>
+                    <div class="form-group">
+                        <label for="upi-id">UPI ID</label>
+                        <input type="text" id="upi-id" placeholder="e.g., yourname@upi" required>
+                    </div>
+                    <button type="submit" class="btn-primary">Update Settings</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div id="login-modal" class="modal" style="display: none;">
+        <div class="modal-content" style="max-width: 400px;">
+            <h2 style="margin-bottom: 1.5rem; text-align: center; color: var(--primary-color);">System Login</h2>
+            <form id="login-form">
+                <div class="form-group">
+                    <label for="login-email">Email Address</label>
+                    <input type="email" id="login-email" required>
+                </div>
+                <div class="form-group">
+                    <label for="login-password">Password</label>
+                    <input type="password" id="login-password" required>
+                </div>
+                <button type="submit" class="btn-primary" style="width: 100%;">Sign In</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="password-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" id="password-close-btn">&times;</span>
+            <h2 style="margin-bottom: 1.5rem;">Enter Password</h2>
+            <form id="password-form">
+                <div class="form-group">
+                    <label for="password-input">Password</label>
+                    <input type="password" id="password-input" required>
+                </div>
+                <button type="submit" class="btn-primary" style="width: 100%;">Submit</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="update-payment-modal" class="modal">
+      <div class="modal-content">
+        <span class="close-btn" onclick="document.getElementById('update-payment-modal').style.display='none'">&times;</span>
+        <h2>Update Payment</h2>
+
+        <div class="form-group">
+          <label for="update-invoice-no">Invoice No.</label>
+          <input type="text" id="update-invoice-no" readonly>
+        </div>
+
+        <div class="form-group">
+          <label for="update-total-amount">Total Amount</label>
+          <input type="number" id="update-total-amount" readonly>
+        </div>
+
+        <div class="form-group">
+          <label for="update-paid-amount">Paid Amount</label>
+          <input type="number" id="update-paid-amount" min="0">
+        </div>
+
+        <div class="form-group">
+          <label for="update-balance">Balance</label>
+          <input type="number" id="update-balance" readonly>
+        </div>
+
+        <button class="btn-success" onclick="processUpdatePayment()">Save Payment</button>
+      </div>
+    </div>
+
+    <div id="alert-box" class="alert-box"></div>
+
+    <div id="loader-container">
+        <div class="loader"></div>
+    </div>
+
+    <div id="print-view" class="print-view" style="display: none;">
+        <div class="invoice-header">
+            <h1 id="print-company-name"></h1>
+            <p id="print-company-address"></p>
+            <p>Phone: <span id="print-company-phone"></span> | Email: <span id="print-company-email"></span></p>
+            <p>GSTIN: <span id="print-company-gstin"></span></p>
+        </div>
+        <hr class="print-divider">
+        <div class="invoice-details print-details">
+            <div style="text-align: left;">
+                <p><strong>Invoice No:</strong> <span id="print-invoice-no"></span></p>
+                <p><strong>Date:</strong> <span id="print-invoice-date"></span></p>
+            </div>
+            <div style="text-align: left;">
+                <p><strong>Customer Name:</strong> <span id="print-customer-name"></span></p>
+                <p><strong>Phone:</strong> <span id="print-customer-phone"></span></p>
+                <p><strong>Address:</strong> <span id="print-customer-address"></span></p>
+            </div>
+        </div>
+        <table class="invoice-table print-table">
+            <thead>
+                <tr>
+                    <th>S.No</th>
+                    <th>Item Name</th>
+                    <th>HSN Code</th>
+                    <th>Quantity</th>
+                    <th>Unit Price (₹)</th>
+                    <th>Total (₹)</th>
+                </tr>
+            </thead>
+            <tbody id="print-invoice-items"></tbody>
+        </table>
+        <div class="total-amount-box print-total-box">
+            <p><strong>Subtotal:</strong> <span id="print-subtotal"></span></p>
+            <p><strong>Discount:</strong> <span id="print-discount"></span></p>
+            <p><strong>GST (18%):</strong> <span id="print-gst"></span></p>
+            <hr>
+            <h3><strong>Grand Total:</strong> <span id="print-grand-total"></span></h3>
+            <p style="font-weight: bold; margin-top: 1rem;">Payment Status: <span id="print-payment-status"></span></p>
+            <p id="print-paid-amount-row" style="display: none;">Paid Amount: <span id="print-paid-amount"></span></p>
+            <p id="print-balance-row" style="display: none;">Balance: <span id="print-balance"></span></p>
+            <p style="margin-top: 1rem;">Payment Mode: <span id="print-payment-mode"></span></p>
+        </div>
+        <div id="print-qr-code-container" class="qr-code-container" style="display: none;">
+            <h3>Scan to Pay</h3>
+            <img id="print-qr-code" alt="QR Code" width="150" height="150">
+            <p id="print-upi-id"></p>
+        </div>
+    </div>
+
+    <div id="quotation-print-view" class="print-view" style="display: none;">
+        <div class="invoice-header">
+            <h1 id="quotation-print-company-name"></h1>
+            <p id="quotation-print-company-address"></p>
+            <p>Phone: <span id="quotation-print-company-phone"></span> | Email: <span id="quotation-print-company-email"></span></p>
+            <p>GSTIN: <span id="quotation-print-company-gstin"></span></p>
+            <h3 style="margin-top: 1rem; border: 1px solid #000; display: inline-block; padding: 0.5rem 2rem;">QUOTATION</h3>
+        </div>
+        <hr class="print-divider">
+        <div class="invoice-details print-details">
+            <div style="text-align: left;">
+                <p><strong>Quotation No:</strong> <span id="quotation-print-invoice-no"></span></p>
+                <p><strong>Date:</strong> <span id="quotation-print-invoice-date"></span></p>
+            </div>
+            <div style="text-align: left;">
+                <p><strong>Customer Name:</strong> <span id="quotation-print-customer-name"></span></p>
+                <p><strong>Phone:</strong> <span id="quotation-print-customer-phone"></span></p>
+                <p><strong>Address:</strong> <span id="quotation-print-customer-address"></span></p>
+            </div>
+        </div>
+        <table class="invoice-table print-table">
+            <thead>
+                <tr>
+                    <th>S.No</th>
+                    <th>Item Name</th>
+                    <th>HSN Code</th>
+                    <th>Quantity</th>
+                    <th>Unit Price (₹)</th>
+                    <th>Total (₹)</th>
+                </tr>
+            </thead>
+            <tbody id="quotation-print-items"></tbody>
+        </table>
+        <div class="total-amount-box print-total-box">
+            <p><strong>Subtotal:</strong> <span id="quotation-print-subtotal"></span></p>
+            <p><strong>Discount:</strong> <span id="quotation-print-discount"></span></p>
+            <p><strong>GST (18%):</strong> <span id="quotation-print-gst"></span></p>
+            <hr>
+            <h3><strong>Grand Total:</strong> <span id="quotation-print-grand-total"></span></h3>
+        </div>
+    </div>
+
+    <div id="daily-report-print-view" style="display: none;"></div>
+
+    <script src="index.js"></script>
+</body>
+</html>
