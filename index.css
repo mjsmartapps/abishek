@@ -435,6 +435,25 @@ tr:hover {
     transform: none;
 }
 
+/* Editable inputs inside Invoice & Quotation Tables */
+.edit-qty-input, .edit-price-input {
+    width: 100%;
+    padding: 0.5rem !important;
+    border: 1px solid #ddd;
+    border-radius: var(--border-radius-sm);
+    font-size: 0.95rem;
+    background-color: #fafbfd;
+    transition: all 0.3s ease;
+    text-align: center;
+}
+
+.edit-qty-input:focus, .edit-price-input:focus {
+    outline: none;
+    border-color: var(--secondary-color);
+    box-shadow: 0 0 0 2px rgba(255, 143, 0, 0.2);
+    background-color: #fff;
+}
+
 /* Invoice & Quotation table specific styles */
 #invoice-items-table, #quotation-items-table {
     border-spacing: 0;
@@ -728,6 +747,10 @@ tr:hover {
     .invoice-header {
         text-align: center;
         margin-bottom: 1.5rem;
+        position: relative !important;
+        min-height: 120px !important;
+        padding: 0 120px !important; /* Provides spacing to avoid text overlapping with top-left logo and top-right QR */
+        display: block !important;
     }
     
     .invoice-header h1 {
@@ -750,6 +773,34 @@ tr:hover {
         color: #333;
     }
     
+    /* Rules to ensure the top-left logo prints optimally on ALL prints */
+    #invoice-top-logo, #quotation-top-logo, #report-top-logo, img[src*="logo1.png"]:not([id*="watermark"]) {
+        position: absolute !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: 100px !important;
+        height: 100px !important;
+        object-fit: contain !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+        display: block !important;
+    }
+
+    /* Rules to ensure watermark background correctly prints transparently */
+    #invoice-watermark, #quotation-watermark, #report-watermark, img[src*="logo1.png"][style*="opacity"] {
+        position: fixed !important;
+        top: 50% !important;
+        left: 50% !important;
+        transform: translate(-50%, -50%) !important;
+        opacity: 0.1 !important;
+        z-index: -1 !important;
+        width: 350px !important;
+        pointer-events: none !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+        display: block !important;
+    }
+
     .print-divider {
         border: none;
         border-top: 1px solid #ccc;
@@ -806,13 +857,21 @@ tr:hover {
         margin: 0.5rem 0;
     }
 
-    .qr-code-container {
+    /* Forcing QR Code to show up top-right exact sizing */
+    .qr-code-container, #quotation-print-qr-code-container, #report-dynamic-qr {
+        position: absolute !important;
+        top: 0 !important;
+        right: 0 !important;
+        margin-top: 0 !important;
         text-align: center;
-        margin-top: 3rem;
+        display: block !important;
     }
     
-    .qr-code-container h3 {
-        margin-bottom: 1rem;
-        font-size: 1.2rem;
+    /* Ensure dynamic canvas renders at fixed size */
+    .qr-code-container canvas, .qr-code-container img, 
+    #quotation-print-qr-code-container canvas, #quotation-print-qr-code-container img,
+    #report-dynamic-qr canvas, #report-dynamic-qr img {
+        width: 100px !important;
+        height: 100px !important;
     }
 }
