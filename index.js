@@ -21,7 +21,8 @@ function triggerPrint() {
 }
 
 function closePrintModal() {
-    document.getElementById("print-modal").style.display = "none";
+    const printModal = document.getElementById("print-modal");
+    if (printModal) printModal.style.display = "none";
     showView("invoice-view"); // back to invoice view
 }
 
@@ -69,12 +70,6 @@ const showLoader = () => {
 
 const hideLoader = () => {
     document.getElementById('loader-container').style.display = 'none';
-};
-
-// QR Code generation (simplified)
-const generateQRCodeUrl = (upiId, totalAmount, invoiceNo) => {
-    const upiUrl = `upi://pay?pa=${upiId}&pn=${encodeURIComponent(companyInfo.name)}&am=${totalAmount}&tn=${encodeURIComponent('Invoice ' + invoiceNo)}`;
-    return `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(upiUrl)}`;
 };
 
 // Replace LocalStorage with Firebase
@@ -388,11 +383,12 @@ function renderDailyReport() {
     const cash = todaySales.filter(inv => inv.mode === 'Cash').reduce((sum, inv) => sum + inv.total, 0);
     const online = todaySales.filter(inv => inv.mode === 'Online').reduce((sum, inv) => sum + inv.total, 0);
     const credit = todaySales.filter(inv => inv.status === 'Not Paid' || inv.status === 'Partially Paid').reduce((sum, inv) => inv.status === 'Partially Paid' ? sum + inv.balance : sum + inv.total, 0);
+    const grandTotal = cash + online + credit;
 
     if (document.getElementById('report-cash-total')) document.getElementById('report-cash-total').textContent = formatCurrency(cash);
     if (document.getElementById('report-online-total')) document.getElementById('report-online-total').textContent = formatCurrency(online);
     if (document.getElementById('report-credit-total')) document.getElementById('report-credit-total').textContent = formatCurrency(credit);
-    if (document.getElementById('report-grand-total')) document.getElementById('report-grand-total').textContent = formatCurrency(cash + online + credit);
+    if (document.getElementById('report-grand-total')) document.getElementById('report-grand-total').textContent = formatCurrency(grandTotal);
 
     // Chart Data Preparation
     const itemSalesMap = {};
@@ -460,25 +456,56 @@ function renderDailyReport() {
 
 function printDailyReport() {
     const targetDate = document.getElementById('report-date-input').value;
+    const todaySales = invoices.filter(inv => inv.date === targetDate);
+    const cash = todaySales.filter(inv => inv.mode === 'Cash').reduce((sum, inv) => sum + inv.total, 0);
+    const online = todaySales.filter(inv => inv.mode === 'Online').reduce((sum, inv) => sum + inv.total, 0);
+    const credit = todaySales.filter(inv => inv.status === 'Not Paid' || inv.status === 'Partially Paid').reduce((sum, inv) => inv.status === 'Partially Paid' ? sum + inv.balance : sum + inv.total, 0);
+    const grandTotal = cash + online + credit;
+
     document.querySelectorAll('.print-view').forEach(el => el.classList.remove('print-view'));
-    document.getElementById('daily-report-print-view').classList.add('print-view');
+    const reportView = document.getElementById('daily-report-print-view');
+    reportView.classList.add('print-view');
     
     const reportContent = document.getElementById('daily-report-print-area').innerHTML;
-    document.getElementById('daily-report-print-view').innerHTML = `
-        <div class="invoice-header">
-            <h1>${companyInfo.name}</h1>
-            <p>${companyInfo.address}</p>
-            <p>Phone: ${companyInfo.phone} | Email: ${companyInfo.email}</p>
+    const logoSrc = "https://firebasestorage.googleapis.com/v0/b/mjsmartapps.firebasestorage.app/o/logo-removebg-preview.png?alt=media&token=90fb939f-ab11-41c4-8485-cd7e8b0414d6";
+
+    reportView.innerHTML = `
+        <img src="${logoSrc}" style="position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); opacity:0.1; z-index:-1; pointer-events:none; width:350px;">
+        <div class="invoice-header" style="position:relative; min-height:120px; padding:0 120px; text-align:center;">
+            <img src="${logoSrc}" style="position:absolute; top:0; left:0; width:100px; height:100px; object-fit:contain;">
+            <div style="position:absolute; top:0; right:0; text-align:center;">
+                <div id="report-dynamic-qr" style="display:flex; justify-content:center; margin:0;"></div>
+            </div>
+            <h1 style="margin-bottom:0.25rem;">${companyInfo.name}</h1>
+            <p style="margin:0.25rem 0;">${companyInfo.address}</p>
+            <p style="margin:0.25rem 0;">Phone: ${companyInfo.phone} | Email: ${companyInfo.email}</p>
             <h3 style="margin-top: 1rem;">Daily Sales Report - ${targetDate}</h3>
         </div>
         <hr class="print-divider">
         ${reportContent}
     `;
     
-    window.print();
-    
-    document.getElementById('daily-report-print-view').classList.remove('print-view');
-    document.getElementById('print-view').classList.add('print-view');
+    setTimeout(() => {
+        const qrContainer = document.getElementById('report-dynamic-qr');
+        if (qrContainer) {
+            qrContainer.innerHTML = '';
+            const upiUrl = `upi://pay?pa=${companyInfo.upiId}&pn=${encodeURIComponent(companyInfo.name)}&am=${grandTotal}&tn=DailyReport`;
+            new QRCode(qrContainer, {
+                text: upiUrl,
+                width: 100,
+                height: 100,
+                colorDark : "#000000",
+                colorLight : "#ffffff",
+                correctLevel : QRCode.CorrectLevel.H
+            });
+        }
+
+        setTimeout(() => {
+            window.print();
+            reportView.classList.remove('print-view');
+            document.getElementById('print-view').classList.add('print-view');
+        }, 150); // Additional buffer to render the canvas
+    }, 50);
 }
 
 
@@ -510,7 +537,10 @@ function printInvoiceBill(invoiceNo) {
     document.querySelectorAll('.print-view').forEach(el => el.classList.remove('print-view'));
     document.getElementById('print-view').classList.add('print-view');
     populatePrintView(invoice);
-    window.print();
+    
+    setTimeout(() => {
+        window.print();
+    }, 300); // Small wait for QR Code Canvas rendering
 }
 
 // --- Stock View Functions ---
@@ -1151,6 +1181,9 @@ const setupQuotationListeners = () => {
     const savePrintBtn = document.getElementById('save-print-quotation-btn');
     const addItemBtn = document.getElementById('add-quotation-item-btn');
 
+    // Allow editing unit price in form
+    document.getElementById('quotation-item-price').removeAttribute('readonly');
+
     // Autocomplete logic
     codeInput.addEventListener('keydown', (e) => {
         if (e.key === "Enter" || e.key === "Tab") {
@@ -1204,6 +1237,7 @@ const setupQuotationListeners = () => {
         }
 
         const quantity = parseInt(qtyInput.value);
+        const userPrice = parseFloat(document.getElementById('quotation-item-price').value);
 
         if (!stock) {
             showAlert('Invalid item code or name.', 'danger');
@@ -1213,19 +1247,24 @@ const setupQuotationListeners = () => {
             showAlert('Please enter a valid quantity.', 'danger');
             return;
         }
+        if (isNaN(userPrice) || userPrice < 0) {
+            showAlert('Please enter a valid price.', 'danger');
+            return;
+        }
 
         const existingItemIndex = currentQuotationItems.findIndex(item => item.id === id);
         if (existingItemIndex > -1) {
             currentQuotationItems[existingItemIndex].quantity += quantity;
-            currentQuotationItems[existingItemIndex].total = currentQuotationItems[existingItemIndex].quantity * stock.price;
+            currentQuotationItems[existingItemIndex].unitPrice = userPrice;
+            currentQuotationItems[existingItemIndex].total = currentQuotationItems[existingItemIndex].quantity * userPrice;
         } else {
             currentQuotationItems.push({
                 id,
                 name: stock.name,
                 hsnCode: stock.hsnCode || '',
                 quantity,
-                unitPrice: stock.price,
-                total: quantity * stock.price
+                unitPrice: userPrice,
+                total: quantity * userPrice
             });
         }
 
@@ -1250,8 +1289,12 @@ const renderQuotationItemsTable = () => {
         row.innerHTML = `
             <td>${item.id}</td>
             <td>${item.name}</td>
-            <td>${item.quantity}</td>
-            <td>${formatCurrency(item.unitPrice)}</td>
+            <td>
+                <input type="number" class="edit-qty-input" data-index="${index}" value="${item.quantity}" min="1" style="width: 70px; padding: 0.25rem;">
+            </td>
+            <td>
+                <input type="number" class="edit-price-input" data-index="${index}" value="${item.unitPrice}" min="0" step="0.01" style="width: 90px; padding: 0.25rem;">
+            </td>
             <td>${formatCurrency(item.total)}</td>
             <td>
                 <button class="btn-icon" onclick="removeQuotationItem(${index})">
@@ -1261,6 +1304,40 @@ const renderQuotationItemsTable = () => {
         `;
         tbody.appendChild(row);
     });
+
+    document.querySelectorAll('#quotation-items-table .edit-qty-input').forEach(input => {
+        input.addEventListener('change', handleQuotationItemChange);
+    });
+    document.querySelectorAll('#quotation-items-table .edit-price-input').forEach(input => {
+        input.addEventListener('change', handleQuotationItemChange);
+    });
+};
+
+const handleQuotationItemChange = (e) => {
+    const index = parseInt(e.target.dataset.index);
+    const item = currentQuotationItems[index];
+    
+    const row = e.target.closest('tr');
+    const newQty = parseInt(row.querySelector('.edit-qty-input').value);
+    const newPrice = parseFloat(row.querySelector('.edit-price-input').value);
+    
+    if (isNaN(newQty) || newQty <= 0) {
+        showAlert('Invalid quantity', 'danger');
+        renderQuotationItemsTable(); // revert
+        return;
+    }
+    if (isNaN(newPrice) || newPrice < 0) {
+        showAlert('Invalid price', 'danger');
+        renderQuotationItemsTable(); // revert
+        return;
+    }
+
+    item.quantity = newQty;
+    item.unitPrice = newPrice;
+    item.total = newQty * newPrice;
+
+    renderQuotationItemsTable();
+    updateQuotationTotal();
 };
 
 const removeQuotationItem = (index) => {
@@ -1317,17 +1394,66 @@ const saveAndPrintQuotation = () => {
     
     populateQuotationPrintView(quotationData);
     
-    window.print();
-    
-    // Revert print view class back to standard invoice print view to not break existing layout
-    document.getElementById('quotation-print-view').classList.remove('print-view');
-    document.getElementById('print-view').classList.add('print-view');
-    
-    generateNewQuotation();
-    showAlert('Quotation generated successfully!', 'success');
+    setTimeout(() => {
+        window.print();
+        
+        // Revert print view class back to standard invoice print view to not break existing layout
+        document.getElementById('quotation-print-view').classList.remove('print-view');
+        document.getElementById('print-view').classList.add('print-view');
+        
+        generateNewQuotation();
+        showAlert('Quotation generated successfully!', 'success');
+    }, 300); // Give time for QR Canvas to render
 };
 
 const populateQuotationPrintView = (quote) => {
+    const printView = document.getElementById('quotation-print-view');
+    printView.style.position = 'relative';
+
+    const logoSrc = "https://firebasestorage.googleapis.com/v0/b/mjsmartapps.firebasestorage.app/o/logo-removebg-preview.png?alt=media&token=90fb939f-ab11-41c4-8485-cd7e8b0414d6";
+
+    // Dynamic Watermark
+    let watermark = document.getElementById('quotation-watermark');
+    if (!watermark) {
+        watermark = document.createElement('img');
+        watermark.id = 'quotation-watermark';
+        watermark.src = logoSrc;
+        watermark.style.position = 'fixed';
+        watermark.style.top = '50%';
+        watermark.style.left = '50%';
+        watermark.style.transform = 'translate(-50%, -50%)';
+        watermark.style.opacity = '0.1';
+        watermark.style.zIndex = '-1';
+        watermark.style.pointerEvents = 'none';
+        watermark.style.width = '350px';
+        printView.appendChild(watermark);
+    } else {
+        watermark.src = logoSrc;
+    }
+
+    // Header Setup
+    const header = document.querySelector('#quotation-print-view .invoice-header');
+    header.style.position = 'relative';
+    header.style.minHeight = '120px';
+    header.style.padding = '0 120px';
+
+    // Top Left Logo
+    let topLogo = document.getElementById('quotation-top-logo');
+    if (!topLogo) {
+        topLogo = document.createElement('img');
+        topLogo.id = 'quotation-top-logo';
+        topLogo.src = logoSrc;
+        topLogo.style.position = 'absolute';
+        topLogo.style.top = '0';
+        topLogo.style.left = '0';
+        topLogo.style.width = '100px';
+        topLogo.style.height = '100px';
+        topLogo.style.objectFit = 'contain';
+        header.appendChild(topLogo);
+    } else {
+        topLogo.src = logoSrc;
+    }
+
     document.getElementById('quotation-print-company-name').textContent = companyInfo.name;
     document.getElementById('quotation-print-company-address').textContent = companyInfo.address;
     document.getElementById('quotation-print-company-phone').textContent = companyInfo.phone;
@@ -1364,6 +1490,44 @@ const populateQuotationPrintView = (quote) => {
     document.getElementById('quotation-print-discount').textContent = formatCurrency(discountAmount);
     document.getElementById('quotation-print-gst').textContent = formatCurrency(gstAmount);
     document.getElementById('quotation-print-grand-total').textContent = formatCurrency(grandTotal);
+
+    // Top Right QR Code
+    let qrCodeContainer = document.getElementById('quotation-print-qr-code-container');
+    if (!qrCodeContainer) {
+        qrCodeContainer = document.createElement('div');
+        qrCodeContainer.id = 'quotation-print-qr-code-container';
+        header.appendChild(qrCodeContainer);
+    }
+    
+    qrCodeContainer.style.display = 'block';
+    qrCodeContainer.style.position = 'absolute';
+    qrCodeContainer.style.top = '0';
+    qrCodeContainer.style.right = '0';
+    qrCodeContainer.style.marginTop = '0';
+    qrCodeContainer.style.textAlign = 'center';
+
+    let dynamicQr = document.getElementById('quotation-dynamic-qr-code');
+    if (!dynamicQr) {
+        dynamicQr = document.createElement('div');
+        dynamicQr.id = 'quotation-dynamic-qr-code';
+        dynamicQr.style.display = 'flex';
+        dynamicQr.style.justifyContent = 'center';
+        dynamicQr.style.margin = '0';
+        qrCodeContainer.appendChild(dynamicQr);
+    }
+    
+    dynamicQr.innerHTML = ''; 
+    
+    const upiUrl = `upi://pay?pa=${companyInfo.upiId}&pn=${encodeURIComponent(companyInfo.name)}&am=${quote.total}&tn=${encodeURIComponent('Quotation ' + quote.invoiceNo)}`;
+    
+    new QRCode(dynamicQr, {
+        text: upiUrl,
+        width: 100, 
+        height: 100, 
+        colorDark : "#000000",
+        colorLight : "#ffffff",
+        correctLevel : QRCode.CorrectLevel.H
+    });
 };
 
 // --- Invoice View Functions ---
@@ -1439,6 +1603,9 @@ const gstCheckbox = document.getElementById('gst-checkbox');
 const savePrintBtn = document.getElementById('save-print-btn');
 const addItemBtn = document.getElementById('add-item-btn');
 
+// Allow editing unit price in form
+document.getElementById('item-price').removeAttribute('readonly');
+
 // Autocomplete logic
 codeInput.addEventListener('keydown', (e) => {
 if (e.key === "Enter" || e.key === "Tab") {
@@ -1477,7 +1644,7 @@ addItemBtn.addEventListener('click', () => {
 let id = codeInput.value.toUpperCase().trim();
 let stock = stocks.find(s => s.id === id);
 
-// Fallback to name search if code isn't directly matching
+// Fallback to name search if code isnt directly matching
 if (!stock) {
     const nameVal = nameInput.value.trim().toLowerCase();
     stock = stocks.find(s => s.name.toLowerCase() === nameVal);
@@ -1485,6 +1652,7 @@ if (!stock) {
 }
 
 const quantity = parseInt(qtyInput.value);
+const userPrice = parseFloat(document.getElementById('item-price').value);
 
 if (!stock) {
     showAlert('Invalid item code or name.', 'danger');
@@ -1492,6 +1660,10 @@ if (!stock) {
 }
 if (!quantity || quantity <= 0) {
     showAlert('Please enter a valid quantity.', 'danger');
+    return;
+}
+if (isNaN(userPrice) || userPrice < 0) {
+    showAlert('Please enter a valid price.', 'danger');
     return;
 }
 if (quantity > stock.quantity) {
@@ -1507,7 +1679,8 @@ if (existingItemIndex > -1) {
         return;
     }
     currentInvoiceItems[existingItemIndex].quantity = newQty;
-    currentInvoiceItems[existingItemIndex].total = newQty * stock.price;
+    currentInvoiceItems[existingItemIndex].unitPrice = userPrice;
+    currentInvoiceItems[existingItemIndex].total = newQty * userPrice;
 } else {
     document.getElementById('paid-amount').required = false;
     currentInvoiceItems.push({
@@ -1515,8 +1688,8 @@ if (existingItemIndex > -1) {
         name: stock.name,
         hsnCode: stock.hsnCode || '',
         quantity,
-        unitPrice: stock.price,
-        total: quantity * stock.price
+        unitPrice: userPrice,
+        total: quantity * userPrice
     });
 }
 
@@ -1548,19 +1721,9 @@ updatePaidBalance();
 
 document.getElementById('paid-amount').addEventListener('input', updatePaidBalance);
 
-// Save and Print Invoice
+// Save and Print Invoice directly
 savePrintBtn.addEventListener('click', () => {
-const paymentMode = document.getElementById('payment-mode').value;
-
-if (paymentMode.toLowerCase() === 'online') {
-    showLoader();
-    setTimeout(() => {
-        hideLoader();
-        saveAndPrintInvoice();
-    }, 5000);
-} else {
     saveAndPrintInvoice();
-}
 });
 };
 
@@ -1595,8 +1758,12 @@ const renderInvoiceItemsTable = () => {
         row.innerHTML = `
             <td>${item.id}</td>
             <td>${item.name}</td>
-            <td>${item.quantity}</td>
-            <td>${formatCurrency(item.unitPrice)}</td>
+            <td>
+                <input type="number" class="edit-qty-input" data-index="${index}" value="${item.quantity}" min="1" style="width: 70px; padding: 0.25rem;">
+            </td>
+            <td>
+                <input type="number" class="edit-price-input" data-index="${index}" value="${item.unitPrice}" min="0" step="0.01" style="width: 90px; padding: 0.25rem;">
+            </td>
             <td>${formatCurrency(item.total)}</td>
             <td>
                 <button class="btn-icon" onclick="removeItemFromInvoice(${index})">
@@ -1606,6 +1773,53 @@ const renderInvoiceItemsTable = () => {
         `;
         tbody.appendChild(row);
     });
+
+    document.querySelectorAll('#invoice-items-table .edit-qty-input').forEach(input => {
+        input.addEventListener('change', handleInvoiceItemChange);
+    });
+    document.querySelectorAll('#invoice-items-table .edit-price-input').forEach(input => {
+        input.addEventListener('change', handleInvoiceItemChange);
+    });
+};
+
+const handleInvoiceItemChange = (e) => {
+    const index = parseInt(e.target.dataset.index);
+    const item = currentInvoiceItems[index];
+    const stock = stocks.find(s => s.id === item.id);
+    
+    const row = e.target.closest('tr');
+    const newQty = parseInt(row.querySelector('.edit-qty-input').value);
+    const newPrice = parseFloat(row.querySelector('.edit-price-input').value);
+    
+    if (isNaN(newQty) || newQty <= 0) {
+        showAlert('Invalid quantity', 'danger');
+        renderInvoiceItemsTable(); // revert
+        return;
+    }
+    if (isNaN(newPrice) || newPrice < 0) {
+        showAlert('Invalid price', 'danger');
+        renderInvoiceItemsTable(); // revert
+        return;
+    }
+
+    if (stock) {
+        const qtyDifference = newQty - item.quantity;
+        if (qtyDifference > 0 && stock.quantity < qtyDifference) {
+            showAlert(`Not enough stock. Only ${stock.quantity} more available.`, 'danger');
+            renderInvoiceItemsTable(); // revert
+            return;
+        }
+        stock.quantity -= qtyDifference;
+    }
+
+    item.quantity = newQty;
+    item.unitPrice = newPrice;
+    item.total = newQty * newPrice;
+
+    saveData();
+    renderInvoiceItemsTable();
+    renderStockTable();
+    updateInvoiceTotal();
 };
 
 const removeItemFromInvoice = (index) => {
@@ -1712,18 +1926,93 @@ const saveAndPrintInvoice = () => {
     saveData();
     renderSalesTable();
     updateDashboard();
+
+    // Create Modal dynamically
+    const modal = document.createElement('div');
+    modal.classList.add('modal');
+    modal.innerHTML = `
+        <div class="modal-content" style="max-width: 400px; text-align: center;">
+            <span class="close-btn" id="popup-close-btn">&times;</span>
+            <h2 style="margin-bottom: 1.5rem; color: var(--primary-color);">Invoice Saved!</h2>
+            <div style="display: flex; gap: 1rem; justify-content: center;">
+                <button class="btn-success" id="popup-print-btn" style="flex:1;">🖨 Print</button>
+                <button class="btn-primary" id="popup-new-btn" style="flex:1;">➕ New Invoice</button>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(modal);
+    modal.style.display = 'flex';
+
+    document.getElementById('popup-close-btn').onclick = () => {
+        modal.remove();
+        generateNewInvoice(); 
+    };
+
+    document.getElementById('popup-new-btn').onclick = () => {
+        modal.remove();
+        generateNewInvoice();
+    };
+
+    document.getElementById('popup-print-btn').onclick = () => {
+        document.querySelectorAll('.print-view').forEach(el => el.classList.remove('print-view'));
+        document.getElementById('print-view').classList.add('print-view');
+        populatePrintView(invoiceData);
+        setTimeout(() => {
+            window.print();
+        }, 300); // Wait briefly to let the canvas render before printing
+    };
     
-    document.querySelectorAll('.print-view').forEach(el => el.classList.remove('print-view'));
-    document.getElementById('print-view').classList.add('print-view');
-    populatePrintView(invoiceData);
-    
-    document.getElementById("print-modal").style.display = "flex";
-    
-    generateNewInvoice(); // Reset form after printing
     showAlert('Invoice saved successfully!', 'success');
 };
 
 const populatePrintView = (invoice) => {
+    const printView = document.getElementById('print-view');
+    printView.style.position = 'relative';
+
+    const logoSrc = "https://firebasestorage.googleapis.com/v0/b/mjsmartapps.firebasestorage.app/o/logo-removebg-preview.png?alt=media&token=90fb939f-ab11-41c4-8485-cd7e8b0414d6";
+
+    // --- Dynamic Watermark ---
+    let watermark = document.getElementById('invoice-watermark');
+    if (!watermark) {
+        watermark = document.createElement('img');
+        watermark.id = 'invoice-watermark';
+        watermark.src = logoSrc;
+        watermark.style.position = 'fixed';
+        watermark.style.top = '50%';
+        watermark.style.left = '50%';
+        watermark.style.transform = 'translate(-50%, -50%)';
+        watermark.style.opacity = '0.1'; // Faint transparency for watermark
+        watermark.style.zIndex = '-1';
+        watermark.style.pointerEvents = 'none';
+        watermark.style.width = '350px';
+        printView.appendChild(watermark);
+    } else {
+        watermark.src = logoSrc;
+    }
+
+    // --- Invoice Header Setup ---
+    const header = document.querySelector('#print-view .invoice-header');
+    header.style.position = 'relative';
+    header.style.minHeight = '120px';
+    header.style.padding = '0 120px'; // Push center text inwards to avoid absolute overlapping
+
+    // --- Top Left Logo ---
+    let topLogo = document.getElementById('invoice-top-logo');
+    if (!topLogo) {
+        topLogo = document.createElement('img');
+        topLogo.id = 'invoice-top-logo';
+        topLogo.src = logoSrc;
+        topLogo.style.position = 'absolute';
+        topLogo.style.top = '0';
+        topLogo.style.left = '0';
+        topLogo.style.width = '100px';
+        topLogo.style.height = '100px';
+        topLogo.style.objectFit = 'contain';
+        header.appendChild(topLogo);
+    } else {
+        topLogo.src = logoSrc;
+    }
+
     document.getElementById('print-company-name').textContent = companyInfo.name;
     document.getElementById('print-company-address').textContent = companyInfo.address;
     document.getElementById('print-company-phone').textContent = companyInfo.phone;
@@ -1782,13 +2071,58 @@ const populatePrintView = (invoice) => {
         balanceRow.style.display = 'none';
     }
 
+    // --- Move & Generate Top Right QR Code Always ---
     const qrCodeContainer = document.getElementById('print-qr-code-container');
-    if (invoice.mode === 'Online') {
-        qrCodeContainer.style.display = 'block';
-        document.getElementById('print-qr-code').src = generateQRCodeUrl(companyInfo.upiId, invoice.total, invoice.invoiceNo);
-        document.getElementById('print-upi-id').textContent = companyInfo.upiId;
-    } else {
-        qrCodeContainer.style.display = 'none';
+    if (qrCodeContainer.parentNode !== header) {
+        header.appendChild(qrCodeContainer); // Move container directly into the relative header
+    }
+    
+    qrCodeContainer.style.display = 'block'; // ALWAYS SHOW
+    qrCodeContainer.style.position = 'absolute';
+    qrCodeContainer.style.top = '0';
+    qrCodeContainer.style.right = '0';
+    qrCodeContainer.style.marginTop = '0';
+    qrCodeContainer.style.textAlign = 'center';
+    
+    // Hide 'Scan to Pay' heading
+    const h3Text = qrCodeContainer.querySelector('h3');
+    if (h3Text) {
+        h3Text.style.display = 'none';
+    }
+
+    // Hide old static fallback image
+    const staticImg = document.getElementById('print-qr-code');
+    if (staticImg) staticImg.style.display = 'none';
+
+    // dynamic rendering for QRCode.js
+    let dynamicQr = document.getElementById('dynamic-qr-code');
+    if (!dynamicQr) {
+        dynamicQr = document.createElement('div');
+        dynamicQr.id = 'dynamic-qr-code';
+        dynamicQr.style.display = 'flex';
+        dynamicQr.style.justifyContent = 'center';
+        dynamicQr.style.margin = '0';
+        qrCodeContainer.insertBefore(dynamicQr, document.getElementById('print-upi-id'));
+    }
+    
+    dynamicQr.innerHTML = ''; // clear previous content
+    
+    const upiUrl = `upi://pay?pa=${companyInfo.upiId}&pn=${encodeURIComponent(companyInfo.name)}&am=${invoice.total}&tn=${encodeURIComponent('Invoice ' + invoice.invoiceNo)}`;
+    
+    // Using qrcode.js locally for instantaneous generation at strictly 100x100
+    new QRCode(dynamicQr, {
+        text: upiUrl,
+        width: 100, // Matching Logo Size
+        height: 100, // Matching Logo Size
+        colorDark : "#000000",
+        colorLight : "#ffffff",
+        correctLevel : QRCode.CorrectLevel.H
+    });
+
+    // Hide UPI ID text
+    const upiEl = document.getElementById('print-upi-id');
+    if (upiEl) {
+        upiEl.style.display = 'none';
     }
 };
 
@@ -1984,30 +2318,33 @@ selectedInvoice = inv;
 document.querySelectorAll('.print-view').forEach(el => el.classList.remove('print-view'));
 document.getElementById('print-view').classList.add('print-view');
 populatePrintView(inv);
-const billHtml = document.getElementById("print-view").innerHTML;
 
-// Put it inside modal container
-document.getElementById("invoice-details-container").innerHTML = billHtml;
+// Adding slight delay to let the dynamic QR code generate before loading HTML into popup
+setTimeout(() => {
+    const billHtml = document.getElementById("print-view").innerHTML;
+    // Put it inside modal container
+    document.getElementById("invoice-details-container").innerHTML = billHtml;
 
-// Populate return dropdown
-const sel = document.getElementById("return-item-select");
-sel.innerHTML = "";
-const itemMap = {};
-inv.items.forEach(item => {
-    if (!itemMap[item.id]) itemMap[item.id] = { id: item.id, name: item.name.replace('Returned: ', ''), quantity: 0 };
-    itemMap[item.id].quantity += item.quantity;
-});
-Object.values(itemMap).forEach(it => {
-if (it.quantity > 0) {
-    let opt = document.createElement("option");
-    opt.value = it.id;
-    opt.textContent = `${it.name} (Qty:${it.quantity})`;
-    sel.appendChild(opt);
-}
-});
+    // Populate return dropdown
+    const sel = document.getElementById("return-item-select");
+    sel.innerHTML = "";
+    const itemMap = {};
+    inv.items.forEach(item => {
+        if (!itemMap[item.id]) itemMap[item.id] = { id: item.id, name: item.name.replace('Returned: ', ''), quantity: 0 };
+        itemMap[item.id].quantity += item.quantity;
+    });
+    Object.values(itemMap).forEach(it => {
+    if (it.quantity > 0) {
+        let opt = document.createElement("option");
+        opt.value = it.id;
+        opt.textContent = `${it.name} (Qty:${it.quantity})`;
+        sel.appendChild(opt);
+    }
+    });
 
-// Show invoice modal
-document.getElementById("invoice-modal").style.display = "flex";
+    // Show invoice modal
+    document.getElementById("invoice-modal").style.display = "flex";
+}, 50);
 }
 
 window.viewInvoice = viewInvoice;
