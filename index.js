@@ -1,12 +1,13 @@
 // Firebase Initialization
 const firebaseConfig = {
-    apiKey: "AIzaSyCzq9AnR8PCPAgtI1sF5rWhZ30O70WrNzo",
-    authDomain: "abishek-617e6.firebaseapp.com",
-    projectId: "abishek-617e6",
-    storageBucket: "abishek-617e6.firebasestorage.app",
-    messagingSenderId: "238953689263",
-    appId: "1:238953689263:web:50e23fc4329d971647e45a",
-    measurementId: "G-FW3F077Z1M"
+  apiKey: "AIzaSyB5jaPVkCwxXiMYhSn0uuW9QSMc-B5C9YY",
+  authDomain: "mjsmartapps.firebaseapp.com",
+  databaseURL: "https://mjsmartapps-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "mjsmartapps",
+  storageBucket: "mjsmartapps.firebasestorage.app",
+  messagingSenderId: "1033240518010",
+  appId: "1:1033240518010:web:930921011dda1bd56e0ac3",
+  measurementId: "G-959VLQSHH2"
 };
 
 firebase.initializeApp(firebaseConfig);
@@ -14,6 +15,8 @@ const db = firebase.firestore();
 const auth = firebase.auth();
 
 let currentUserId = null;
+
+const UNION_TERRITORIES = ["Andaman and Nicobar Islands", "Chandigarh", "Dadra and Nagar Haveli and Daman and Diu", "Delhi", "Jammu and Kashmir", "Ladakh", "Lakshadweep", "Puducherry"];
 
 function triggerPrint() {
     window.print();
@@ -31,6 +34,7 @@ let invoices = [];
 let purchases = [];
 let customers = [];
 let companyInfo = {
+    ownerName: "",
     name: "MJ SMART APP",
     phone: "+91 8220403716",
     address: "Ramanathapuram",
@@ -72,11 +76,11 @@ const hideLoader = () => {
     document.getElementById('loader-container').style.display = 'none';
 };
 
-// Replace LocalStorage with Firebase
+// Replace LocalStorage with Firebase (Collection changed to billingusers)
 const saveData = () => {
     if (!currentUserId) return;
     try {
-        db.collection('users').doc(currentUserId).set({
+        db.collection('billingusers').doc(currentUserId).set({
             stocks: stocks,
             invoices: invoices,
             purchases: purchases,
@@ -93,14 +97,21 @@ const loadData = async () => {
     if (!currentUserId) return;
     showLoader();
     try {
-        const doc = await db.collection('users').doc(currentUserId).get();
+        const doc = await db.collection('billingusers').doc(currentUserId).get();
         if (doc.exists) {
             const data = doc.data();
             if (data.stocks) stocks = data.stocks;
             if (data.invoices) invoices = data.invoices;
             if (data.purchases) purchases = data.purchases; else purchases = [];
             if (data.customers) customers = data.customers;
-            if (data.companyInfo) companyInfo = data.companyInfo;
+            if (data.companyInfo) {
+                companyInfo = data.companyInfo;
+                // Auto update header name from Profile
+                const headerH2 = document.querySelector('header h2');
+                if (headerH2 && companyInfo.name && companyInfo.name !== "MJ SMART APP") {
+                    headerH2.textContent = companyInfo.name;
+                }
+            }
             if (data.lastInvoiceNo) lastInvoiceNo = parseInt(data.lastInvoiceNo, 10);
         }
         
@@ -115,7 +126,25 @@ const loadData = async () => {
         renderPurchaseTable();
         updatePurchaseDashboard();
         renderPurchaseDatalists();
-        renderSettingsForm();
+
+        // Display Mandatory Profile Popup if details are missing
+        let showProfile = false;
+        if (!companyInfo.ownerName || !companyInfo.name || companyInfo.name === "MJ SMART APP" || !companyInfo.address || companyInfo.address === "Ramanathapuram") {
+            showProfile = true;
+        }
+
+        if (showProfile) {
+            document.getElementById('profile-phone').value = auth.currentUser.phoneNumber || companyInfo.phone || '';
+            document.getElementById('profile-owner-name').value = companyInfo.ownerName || '';
+            document.getElementById('profile-company-name').value = companyInfo.name === "MJ SMART APP" ? '' : companyInfo.name;
+            document.getElementById('profile-address').value = companyInfo.address === "Ramanathapuram" ? '' : companyInfo.address;
+            document.getElementById('profile-email').value = companyInfo.email || '';
+            document.getElementById('profile-gstin').value = companyInfo.gstin || '';
+            document.getElementById('profile-upi').value = companyInfo.upiId || '';
+
+            document.getElementById('profile-modal').style.display = 'flex';
+        }
+
     } catch (e) {
         console.error('Error loading data from Firestore:', e);
     }
@@ -125,6 +154,173 @@ const loadData = async () => {
 // --- Main Application Logic ---
 
 document.addEventListener('DOMContentLoaded', () => {
+
+    // --- Realistic Billing Software Design CSS Injection ---
+    const customStyle = document.createElement('style');
+    customStyle.innerHTML = `
+        /* Compact & Small Fonts Override for Realistic Software Look */
+        :root {
+            --border-radius-sm: 2px !important;
+            --border-radius-lg: 3px !important;
+            --shadow: none !important;
+        }
+        body {
+            font-size: 12px !important;
+            color: #333 !important;
+            background-color: #eceff1 !important;
+        }
+        h1 { font-size: 18px !important; margin-bottom: 0.75rem !important; color: #263238 !important; }
+        h2 { font-size: 14px !important; margin-bottom: 0.5rem !important; color: #37474f !important; border-bottom: 1px solid #cfd8dc; padding-bottom: 3px; }
+        h3 { font-size: 13px !important; }
+        
+        /* Header Title to Red dynamically */
+        header h2.text-6xl {
+            color: #ff0000 !important;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.2) !important;
+        }
+
+        /* Invoice Preview Background */
+        .print-view, #invoice-details-container {
+            background-color: #ffffff !important;
+        }
+
+        /* Apply to all text-heavy elements */
+        p, span, div, label, th, td, input, select, textarea, button, .nav-link, li {
+            font-size: 12px !important;
+        }
+
+        /* Forms Styling */
+        form {
+            padding: 0.75rem 1rem !important;
+            background: #ffffff !important;
+            border: 1px solid #cfd8dc !important;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05) !important;
+            margin-bottom: 1rem !important;
+        }
+        .form-row {
+            gap: 0.75rem !important;
+        }
+        .form-group {
+            margin-bottom: 0.5rem !important;
+        }
+        label {
+            font-weight: 600 !important;
+            margin-bottom: 0.2rem !important;
+            color: #455a64 !important;
+        }
+        
+        /* Inputs styling */
+        input, select, textarea {
+            padding: 0.2rem 0.4rem !important;
+            border: 1px solid #b0bec5 !important;
+            background-color: #fff !important;
+            border-radius: 2px !important;
+            height: 24px !important;
+        }
+        textarea {
+            height: auto !important;
+            padding: 0.4rem !important;
+        }
+        input:focus, select:focus, textarea:focus {
+            border-color: var(--primary-color) !important;
+            box-shadow: inset 0 0 0 1px var(--primary-color) !important;
+            outline: none !important;
+        }
+        
+        input[type="radio"] { 
+            cursor: pointer; 
+            margin-right: 4px !important; 
+        }
+
+        /* Buttons styling */
+        button {
+            padding: 0.25rem 0.75rem !important;
+            border-radius: 2px !important;
+            font-weight: 600 !important;
+            text-transform: capitalize !important;
+            letter-spacing: normal !important;
+            height: 26px !important;
+            line-height: 1 !important;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid transparent !important;
+        }
+        button.btn-primary { border-color: #0288d1 !important; background-color: #039be5 !important; }
+        button.btn-success { border-color: #2e7d32 !important; background-color: #43a047 !important; }
+        button.btn-danger { border-color: #c62828 !important; background-color: #e53935 !important; }
+        .action-buttons button { margin-right: 2px; }
+
+        /* Tables styling */
+        table {
+            border-spacing: 0 !important;
+            border-collapse: collapse !important;
+            border: 1px solid #cfd8dc !important;
+            box-shadow: none !important;
+            margin-top: 0.5rem !important;
+        }
+        th, td {
+            padding: 0.25rem 0.5rem !important;
+            border: 1px solid #cfd8dc !important;
+            height: 24px !important;
+        }
+        th {
+            background-color: #e0e0e0 !important;
+            color: #212121 !important;
+            font-weight: bold !important;
+            text-transform: none !important;
+            letter-spacing: normal !important;
+        }
+        tr:hover { background-color: #f5f5f5 !important; box-shadow: none !important; transform: none !important; }
+        
+        /* Layout specific adjustments */
+        .main-content {
+            padding: 1rem !important;
+        }
+        .dashboard-grid { gap: 1rem !important; }
+        .dashboard-card {
+            padding: 1rem !important;
+            border: 1px solid #cfd8dc !important;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05) !important;
+            border-radius: 3px !important;
+        }
+        .card-value {
+            font-size: 18px !important;
+        }
+        .card-icon {
+            font-size: 16px !important;
+            margin-bottom: 0.25rem !important;
+        }
+        .header-row {
+            margin-bottom: 0.75rem !important;
+        }
+        .status-filters {
+            padding: 0.4rem 0.75rem !important;
+            margin-bottom: 0.75rem !important;
+            border: 1px solid #cfd8dc !important;
+            border-radius: 3px !important;
+            box-shadow: none !important;
+            background: #fff !important;
+        }
+        .modal-content {
+            padding: 1rem !important;
+        }
+        
+        /* Table Internal Edit Inputs */
+        .edit-qty-input, .edit-price-input {
+            padding: 0.1rem 0.25rem !important;
+            height: 20px !important;
+            margin: 0 !important;
+            width: 100% !important;
+            min-width: 60px !important;
+        }
+
+        /* Nav specific overrides */
+        .nav-link { padding: 0.5rem 0.75rem !important; margin-bottom: 0.25rem !important; }
+        .nav-link svg { width: 14px; height: 14px; margin-right: 0.4rem; }
+        header { padding: 1rem !important; }
+    `;
+    document.head.appendChild(customStyle);
 
     // --- Dynamic UI Adjustments (Header Alignment, Color to Sky Blue, Hide Date Search) ---
     document.documentElement.style.setProperty('--primary-color', '#0ea5e9'); // Sky Blue
@@ -153,7 +349,201 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     const fsContainer = document.getElementById('filtered-sales-container');
     if (fsContainer) fsContainer.style.display = 'none';
+
+    // --- Hide & Remove Designer View Component completely ---
+    const designerNav = document.querySelector('.nav-link[data-view="settings-view"]');
+    if (designerNav) designerNav.style.display = 'none';
+    const settingsView = document.getElementById('settings-view');
+    if (settingsView) settingsView.style.display = 'none';
+
+    // --- Dynamically Inject Purchase Price Input if missing ---
+    const stockPriceGroup = document.getElementById('stock-price')?.closest('.form-group');
+    if (stockPriceGroup && !document.getElementById('stock-purchase-price')) {
+        const ppGroup = document.createElement('div');
+        ppGroup.className = 'form-group';
+        ppGroup.innerHTML = `
+            <label for="stock-purchase-price">Purchase Price (₹)</label>
+            <input type="number" id="stock-purchase-price" min="0" step="0.01" required>
+        `;
+        stockPriceGroup.parentNode.insertBefore(ppGroup, stockPriceGroup);
+    }
+
+    // --- Dynamically Convert Select Dropdowns to Radio Buttons in Invoice ---
+    const pStatusEl = document.getElementById('payment-status');
+    if (pStatusEl && pStatusEl.tagName === 'SELECT') {
+        const pStatusParent = pStatusEl.parentNode;
+        pStatusParent.innerHTML = `
+            <label>Payment Status</label>
+            <div id="payment-status-container" style="display:flex; gap:10px; height:24px; align-items:center;">
+                <label style="font-weight:normal; margin:0; display:flex; align-items:center;"><input type="radio" name="payment-status" value="Full Paid" checked> Full Paid</label>
+                <label style="font-weight:normal; margin:0; display:flex; align-items:center;"><input type="radio" name="payment-status" value="Partially Paid"> Partially Paid</label>
+                <label style="font-weight:normal; margin:0; display:flex; align-items:center;"><input type="radio" name="payment-status" value="Not Paid"> Not Paid</label>
+            </div>
+        `;
+    }
+
+    const pModeEl = document.getElementById('payment-mode');
+    if (pModeEl && pModeEl.tagName === 'SELECT') {
+        const pModeParent = pModeEl.parentNode;
+        pModeParent.innerHTML = `
+            <label>Payment Mode</label>
+            <div id="payment-mode-container" style="display:flex; gap:10px; height:24px; align-items:center;">
+                <label style="font-weight:normal; margin:0; display:flex; align-items:center;"><input type="radio" name="payment-mode" value="Cash" checked> Cash</label>
+                <label style="font-weight:normal; margin:0; display:flex; align-items:center;"><input type="radio" name="payment-mode" value="Online"> Online</label>
+            </div>
+        `;
+    }
     // --------------------------------------------------------------------------
+
+    // --- Profile Modal Dynamic Injection ---
+    const profileModal = document.createElement('div');
+    profileModal.id = 'profile-modal';
+    profileModal.className = 'modal';
+    profileModal.style.display = 'none';
+    profileModal.innerHTML = `
+        <div class="modal-content" style="max-width: 450px;">
+            <h2 style="margin-bottom: 0.5rem; text-align: center; color: var(--primary-color); border: none;">Complete Profile</h2>
+            <p style="text-align:center; margin-bottom: 1rem; font-size: 11px; color: #d32f2f;">Please update your profile information to continue.</p>
+            <form id="profile-form" style="margin-bottom: 0; box-shadow: none; border: none; padding: 0;">
+                <div class="form-group">
+                    <label for="profile-owner-name">Owner Name <span style="color:red">*</span></label>
+                    <input type="text" id="profile-owner-name" required>
+                </div>
+                <div class="form-group">
+                    <label for="profile-company-name">Company Name <span style="color:red">*</span></label>
+                    <input type="text" id="profile-company-name" required>
+                </div>
+                <div class="form-group">
+                    <label for="profile-phone">Phone No. <span style="color:red">*</span></label>
+                    <input type="tel" id="profile-phone" readonly required style="background-color: #f5f5f5; color: #757575;">
+                </div>
+                <div class="form-group">
+                    <label for="profile-address">Address <span style="color:red">*</span></label>
+                    <textarea id="profile-address" rows="2" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="profile-email">Email (Optional)</label>
+                    <input type="email" id="profile-email">
+                </div>
+                <div class="form-group">
+                    <label for="profile-gstin">GSTIN (Optional)</label>
+                    <input type="text" id="profile-gstin">
+                </div>
+                <div class="form-group">
+                    <label for="profile-upi">UPI ID (Optional)</label>
+                    <input type="text" id="profile-upi" placeholder="e.g., yourname@upi">
+                </div>
+                <button type="submit" class="btn-primary" style="width: 100%; margin-top: 1rem;">Save Profile</button>
+            </form>
+        </div>
+    `;
+    document.body.appendChild(profileModal);
+
+    document.getElementById('profile-form').addEventListener('submit', (e) => {
+        e.preventDefault();
+        companyInfo.ownerName = document.getElementById('profile-owner-name').value.trim();
+        companyInfo.name = document.getElementById('profile-company-name').value.trim();
+        companyInfo.phone = document.getElementById('profile-phone').value.trim();
+        companyInfo.address = document.getElementById('profile-address').value.trim();
+        companyInfo.email = document.getElementById('profile-email').value.trim();
+        companyInfo.gstin = document.getElementById('profile-gstin').value.trim();
+        companyInfo.upiId = document.getElementById('profile-upi').value.trim();
+
+        saveData();
+
+        // Update Header Main Name when Profile successfully completes
+        const headerH2 = document.querySelector('header h2');
+        if (headerH2) {
+            headerH2.textContent = companyInfo.name;
+        }
+
+        document.getElementById('profile-modal').style.display = 'none';
+        showAlert('Profile updated successfully!', 'success');
+        updateDashboard();
+    });
+
+    // --- Phone Login Replacement Logic ---
+    const loginModalContainer = document.getElementById('login-modal');
+    if (loginModalContainer) {
+        loginModalContainer.querySelector('.modal-content').innerHTML = `
+            <h2 style="margin-bottom: 1rem; text-align: center; color: var(--primary-color); border: none;">Phone Login</h2>
+            <div id="recaptcha-container"></div>
+            <form id="phone-login-form" style="margin-bottom: 0; box-shadow: none; border: none; padding: 0;">
+                <div class="form-group">
+                    <label for="login-phone">Phone Number</label>
+                    <div style="display: flex; align-items: center; border: 1px solid #b0bec5; border-radius: 2px; background-color: #fff; height: 26px; overflow: hidden;">
+                        <span style="padding: 0 8px; border-right: 1px solid #b0bec5; display: flex; align-items: center; gap: 4px; background: #f5f5f5; height: 100%;">
+                            <img src="https://flagcdn.com/w20/in.png" alt="India Flag" style="width: 16px;"> +91
+                        </span>
+                        <input type="tel" id="login-phone" placeholder="Enter 10-digit number" pattern="[0-9]{10}" maxlength="10" required style="border: none !important; box-shadow: none !important; outline: none !important; width: 100% !important; height: 100% !important; padding: 0 0.4rem !important;">
+                    </div>
+                </div>
+                <button type="submit" class="btn-primary" style="width: 100%; margin-top: 0.5rem;">Send OTP</button>
+            </form>
+            <form id="otp-verify-form" style="display: none; margin-bottom: 0; box-shadow: none; border: none; padding: 0; margin-top: 1rem;">
+                <div class="form-group">
+                    <label for="login-otp">Enter OTP</label>
+                    <input type="text" id="login-otp" required>
+                </div>
+                <button type="submit" class="btn-success" style="width: 100%;">Verify OTP</button>
+            </form>
+        `;
+
+        // Enforce Numbers only dynamically for 10 digits
+        const phoneInputEl = document.getElementById('login-phone');
+        if (phoneInputEl) {
+            phoneInputEl.addEventListener('input', (e) => {
+                e.target.value = e.target.value.replace(/\D/g, '').slice(0, 10);
+            });
+        }
+
+        window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', {
+            'size': 'invisible',
+            'callback': (response) => {
+                // reCAPTCHA solved
+            }
+        });
+
+        document.getElementById('phone-login-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const rawPhone = document.getElementById('login-phone').value.replace(/\D/g, '');
+            if (rawPhone.length !== 10) {
+                showAlert('Please enter a valid 10-digit phone number.', 'danger');
+                return;
+            }
+            const phoneNumber = '+91' + rawPhone;
+            
+            showLoader();
+            auth.signInWithPhoneNumber(phoneNumber, window.recaptchaVerifier)
+                .then((confirmationResult) => {
+                    hideLoader();
+                    window.confirmationResult = confirmationResult;
+                    document.getElementById('phone-login-form').style.display = 'none';
+                    document.getElementById('otp-verify-form').style.display = 'block';
+                    showAlert('OTP sent successfully!', 'success');
+                }).catch((error) => {
+                    hideLoader();
+                    showAlert('Error sending OTP: ' + error.message, 'danger');
+                    if(window.recaptchaVerifier) window.recaptchaVerifier.render().then(function(widgetId) {
+                      grecaptcha.reset(widgetId);
+                    });
+                });
+        });
+
+        document.getElementById('otp-verify-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const code = document.getElementById('login-otp').value;
+            showLoader();
+            window.confirmationResult.confirm(code).then((result) => {
+                hideLoader();
+                showAlert('Login successful!', 'success');
+                // The onAuthStateChanged will handle the rest
+            }).catch((error) => {
+                hideLoader();
+                showAlert('Invalid OTP: ' + error.message, 'danger');
+            });
+        });
+    }
 
     // Auth State Observer
     auth.onAuthStateChanged(user => {
@@ -168,45 +558,15 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Login Form Submit Logic
-    document.getElementById('login-form').addEventListener('submit', (e) => {
-        e.preventDefault();
-        const email = document.getElementById('login-email').value;
-        const password = document.getElementById('login-password').value;
-        
-        showLoader();
-        auth.signInWithEmailAndPassword(email, password)
-            .then((userCredential) => {
-                hideLoader();
-                showAlert('Login successful!', 'success');
-            })
-            .catch((error) => {
-                // If the user doesn't exist, we can register them for convenience.
-                if (error.code === 'auth/user-not-found') {
-                    auth.createUserWithEmailAndPassword(email, password)
-                        .then(() => {
-                            hideLoader();
-                            showAlert('New account created & logged in!', 'success');
-                        })
-                        .catch((regErr) => {
-                            hideLoader();
-                            showAlert('Login failed: ' + regErr.message, 'danger');
-                        });
-                } else {
-                    hideLoader();
-                    showAlert('Login failed: ' + error.message, 'danger');
-                }
-            });
-    });
-
-
     // Setup Navigation
     document.querySelectorAll('.nav-link').forEach(link => {
         link.addEventListener('click', (e) => {
             e.preventDefault();
             const viewId = link.dataset.view;
 
-            if (viewId === '' || viewId === 'settings-view') {
+            if (viewId === 'settings-view') return; // Disabled
+
+            if (viewId === '') {
                 document.getElementById('password-modal').style.display = 'flex';
                 document.getElementById('password-input').focus();
                 document.getElementById('password-form').dataset.targetView = viewId;
@@ -261,7 +621,6 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('input[name="sales-status-filter"]').forEach(radio => {
         radio.addEventListener('change', filterSalesTable);
     });
-    document.getElementById('settings-form').addEventListener('submit', updateSettings);
 });
 
 const showView = (viewId) => {
@@ -355,6 +714,7 @@ function processUpdatePayment() {
 
 let paymentModeChartInstance = null;
 let topItemsChartInstance = null;
+let gstChartInstance = null;
 
 function renderDailyReport() {
     const dateInput = document.getElementById('report-date-input');
@@ -365,6 +725,8 @@ function renderDailyReport() {
     const targetDate = dateInput.value;
     const todaySales = invoices.filter(inv => inv.date === targetDate);
     
+    let totalCGST = 0, totalSGST = 0, totalIGST = 0, totalUGST = 0, totalGSTCollected = 0;
+
     const tbody = document.getElementById('daily-report-table-body');
     if (tbody) {
         tbody.innerHTML = '';
@@ -377,6 +739,13 @@ function renderDailyReport() {
                 <td style="padding: 0.75rem; border: 1px solid #ccc; text-align: right;">${formatCurrency(inv.total)}</td>
             `;
             tbody.appendChild(row);
+
+            // GST Calculations
+            totalCGST += inv.cgst || 0;
+            totalSGST += inv.sgst || 0;
+            totalIGST += inv.igst || 0;
+            totalUGST += inv.ugst || 0;
+            totalGSTCollected += (inv.gst || 0);
         });
     }
 
@@ -388,6 +757,13 @@ function renderDailyReport() {
     if (document.getElementById('report-cash-total')) document.getElementById('report-cash-total').textContent = formatCurrency(cash);
     if (document.getElementById('report-online-total')) document.getElementById('report-online-total').textContent = formatCurrency(online);
     if (document.getElementById('report-credit-total')) document.getElementById('report-credit-total').textContent = formatCurrency(credit);
+    
+    if (document.getElementById('report-cgst-total')) document.getElementById('report-cgst-total').textContent = formatCurrency(totalCGST);
+    if (document.getElementById('report-sgst-total')) document.getElementById('report-sgst-total').textContent = formatCurrency(totalSGST);
+    if (document.getElementById('report-igst-total')) document.getElementById('report-igst-total').textContent = formatCurrency(totalIGST);
+    if (document.getElementById('report-ugst-total')) document.getElementById('report-ugst-total').textContent = formatCurrency(totalUGST);
+    if (document.getElementById('report-total-gst')) document.getElementById('report-total-gst').textContent = formatCurrency(totalGSTCollected);
+
     if (document.getElementById('report-grand-total')) document.getElementById('report-grand-total').textContent = formatCurrency(grandTotal);
 
     // Chart Data Preparation
@@ -419,6 +795,26 @@ function renderDailyReport() {
             datasets: [{
                 data: [cash, online, credit],
                 backgroundColor: ['#0ea5e9', '#38bdf8', '#ff8f00'], // Sky blue palette
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { position: 'bottom' } }
+        }
+    });
+
+    // Render GST Chart
+    const ctxGst = document.getElementById('gstChart').getContext('2d');
+    if (gstChartInstance) gstChartInstance.destroy();
+    gstChartInstance = new Chart(ctxGst, {
+        type: 'doughnut',
+        data: {
+            labels: ['CGST', 'SGST', 'IGST', 'UGST'],
+            datasets: [{
+                data: [totalCGST, totalSGST, totalIGST, totalUGST],
+                backgroundColor: ['#0ea5e9', '#38bdf8', '#ff8f00', '#d32f2f'],
                 borderWidth: 1
             }]
         },
@@ -569,6 +965,14 @@ const renderStockTable = () => {
     const selectAllCheckbox = document.getElementById('select-all-checkbox');
     selectAllCheckbox.checked = stocks.length > 0 && stocks.every(s => s.selected);
 
+    // Dynamically insert Purchase Price header if missing
+    const theadRow = document.querySelector('#stock-table thead tr');
+    if (theadRow && !theadRow.innerHTML.includes('Purchase Price')) {
+        const th = document.createElement('th');
+        th.textContent = 'Purchase Price';
+        theadRow.insertBefore(th, theadRow.children[5]);
+    }
+
     stocks.forEach(stock => {
         const row = document.createElement('tr');
         const currentLowStock = stock.lowStock !== undefined ? stock.lowStock : lowStockThreshold;
@@ -581,6 +985,7 @@ const renderStockTable = () => {
             <td>${stock.name}</td>
             <td>${stock.hsnCode || '-'}</td>
             <td>${stock.quantity}</td>
+            <td>${formatCurrency(stock.purchasePrice || 0)}</td>
             <td>${formatCurrency(stock.price)}</td>
             <td>${currentLowStock}</td>
             <td class="action-buttons">
@@ -663,13 +1068,14 @@ const addStock = (e) => {
     const id = document.getElementById('stock-code').value.toUpperCase().trim();
     const name = document.getElementById('stock-name').value.trim();
     const quantity = parseInt(document.getElementById('stock-quantity').value);
+    const purchasePrice = parseFloat(document.getElementById('stock-purchase-price')?.value) || 0;
     const price = parseFloat(document.getElementById('stock-price').value);
     const lowStock = parseInt(document.getElementById('stock-low').value) || 0;
     const hsnCode = document.getElementById('stock-hsn').value.trim();
 
     // Add validation for quantity and price
-    if (isNaN(quantity) || isNaN(price) || quantity < 0 || price < 0) {
-        showAlert('Please enter valid positive numbers for Quantity and Unit Price.', 'danger');
+    if (isNaN(quantity) || isNaN(price) || quantity < 0 || price < 0 || purchasePrice < 0) {
+        showAlert('Please enter valid positive numbers for Quantity, Purchase Price, and Unit Price.', 'danger');
         return;
     }
     
@@ -684,12 +1090,13 @@ const addStock = (e) => {
     if (existingStock) {
         existingStock.quantity = quantity;
         existingStock.name = name;
+        existingStock.purchasePrice = purchasePrice;
         existingStock.price = price;
         existingStock.lowStock = lowStock;
         existingStock.hsnCode = hsnCode;
         showAlert('Stock updated successfully!', 'success');
     } else {
-        stocks.push({ id, name, quantity, price, lowStock, hsnCode, selected: false });
+        stocks.push({ id, name, quantity, purchasePrice, price, lowStock, hsnCode, selected: false });
         showAlert('New stock added successfully!', 'success');
     }
 
@@ -707,6 +1114,9 @@ const editStock = (id) => {
         document.getElementById('stock-code').value = stock.id;
         document.getElementById('stock-name').value = stock.name;
         document.getElementById('stock-quantity').value = stock.quantity;
+        if (document.getElementById('stock-purchase-price')) {
+            document.getElementById('stock-purchase-price').value = stock.purchasePrice || 0;
+        }
         document.getElementById('stock-price').value = stock.price;
         document.getElementById('stock-low').value = stock.lowStock !== undefined ? stock.lowStock : lowStockThreshold;
         document.getElementById('stock-hsn').value = stock.hsnCode || '';
@@ -749,8 +1159,8 @@ const exportCSV = () => {
         showAlert('No stock data to export.', 'danger');
         return;
     }
-    const headers = "Item Code,Item Name,HSN Code,Quantity,Unit Price,Low Stock At\n";
-    const csvRows = stocks.map(s => `${s.id},"${s.name}","${s.hsnCode || ''}",${s.quantity},${s.price},${s.lowStock !== undefined ? s.lowStock : lowStockThreshold}`).join("\n");
+    const headers = "Item Code,Item Name,HSN Code,Quantity,Purchase Price,Unit Price,Low Stock At\n";
+    const csvRows = stocks.map(s => `${s.id},"${s.name}","${s.hsnCode || ''}",${s.quantity},${s.purchasePrice || 0},${s.price},${s.lowStock !== undefined ? s.lowStock : lowStockThreshold}`).join("\n");
     const csvContent = `data:text/csv;charset=utf-8,${headers}${csvRows}`;
     
     const encodedUri = encodeURI(csvContent);
@@ -784,7 +1194,24 @@ const importCSV = (event) => {
             }
             cols.push(currentVal);
 
-            if (cols.length >= 6) {
+            if (cols.length >= 7) {
+                const quantity = parseInt(cols[3]);
+                const purchasePrice = parseFloat(cols[4]);
+                const price = parseFloat(cols[5]);
+                const lowStock = parseInt(cols[6]);
+                if (!isNaN(quantity) && !isNaN(price) && quantity >= 0 && price >= 0) {
+                    newStocks.push({
+                        id: cols[0].trim(),
+                        name: cols[1].trim().replace(/"/g, ''),
+                        hsnCode: cols[2].trim().replace(/"/g, ''),
+                        quantity: quantity,
+                        purchasePrice: isNaN(purchasePrice) ? 0 : purchasePrice,
+                        price: price,
+                        lowStock: isNaN(lowStock) ? 10 : lowStock,
+                        selected: false
+                    });
+                }
+            } else if (cols.length >= 6) { 
                 const quantity = parseInt(cols[3]);
                 const price = parseFloat(cols[4]);
                 const lowStock = parseInt(cols[5]);
@@ -794,6 +1221,7 @@ const importCSV = (event) => {
                         name: cols[1].trim().replace(/"/g, ''),
                         hsnCode: cols[2].trim().replace(/"/g, ''),
                         quantity: quantity,
+                        purchasePrice: 0,
                         price: price,
                         lowStock: isNaN(lowStock) ? 10 : lowStock,
                         selected: false
@@ -808,6 +1236,7 @@ const importCSV = (event) => {
                         name: cols[1].trim().replace(/"/g, ''),
                         hsnCode: '',
                         quantity: quantity,
+                        purchasePrice: 0,
                         price: price,
                         lowStock: 10,
                         selected: false
@@ -943,15 +1372,25 @@ const addPurchase = (e) => {
             purchase.dealerName = dealerName;
             purchase.companyName = companyName;
             
-            if (paidAmount > purchase.paidAmount) {
-                const diff = paidAmount - purchase.paidAmount;
-                purchase.history = purchase.history || [];
-                purchase.history.push({ date: new Date().toISOString().split('T')[0], amount: diff, note: 'Updated via Edit' });
-            }
-            
+            const oldTotal = purchase.totalAmount;
+            const oldPaid = purchase.paidAmount;
+
             purchase.totalAmount = totalAmount;
             purchase.paidAmount = paidAmount;
             purchase.balance = totalAmount - paidAmount;
+
+            if (totalAmount !== oldTotal || paidAmount !== oldPaid) {
+                const diffTotal = totalAmount - oldTotal;
+                const diffPaid = paidAmount - oldPaid;
+                purchase.history = purchase.history || [];
+                purchase.history.push({ 
+                    date: new Date().toISOString().split('T')[0], 
+                    debit: diffTotal > 0 ? diffTotal : 0, 
+                    credit: diffPaid > 0 ? diffPaid : 0,
+                    balance: purchase.balance,
+                    note: 'Updated via Edit' 
+                });
+            }
         }
         editingPurchaseId = null;
         document.getElementById('add-purchase-btn').textContent = "Add Purchase";
@@ -965,8 +1404,15 @@ const addPurchase = (e) => {
             totalAmount,
             paidAmount,
             balance: totalAmount - paidAmount,
-            history: paidAmount > 0 ? [{ date: new Date().toISOString().split('T')[0], amount: paidAmount, note: 'Initial Payment' }] : []
+            history: []
         };
+        newPurchase.history.push({ 
+            date, 
+            debit: totalAmount, 
+            credit: paidAmount, 
+            balance: totalAmount - paidAmount, 
+            note: 'Initial Purchase' 
+        });
         purchases.push(newPurchase);
         showAlert('Purchase added successfully!', 'success');
     }
@@ -1035,12 +1481,101 @@ const payPurchase = (id) => {
         purchase.paidAmount += amt;
         purchase.balance -= amt;
         purchase.history = purchase.history || [];
-        purchase.history.push({ date: new Date().toISOString().split('T')[0], amount: amt, note: 'Payment' });
+        purchase.history.push({ 
+            date: new Date().toISOString().split('T')[0], 
+            debit: 0,
+            credit: amt,
+            balance: purchase.balance,
+            note: 'Payment' 
+        });
         saveData();
         renderPurchaseTable();
         updatePurchaseDashboard();
         modal.remove();
         showAlert('Payment successful', 'success');
+    };
+};
+
+const newPurchaseBill = (id) => {
+    const purchase = purchases.find(p => p.id === id);
+    if(!purchase) return;
+
+    const modal = document.createElement('div');
+    modal.classList.add('modal');
+    modal.innerHTML = `
+        <div class="modal-content">
+            <h2 style="margin-bottom:1.5rem;">Add New Bill (${purchase.dealerName})</h2>
+            <div class="form-group">
+                <label>Date</label>
+                <input type="date" id="new-bill-date" value="${new Date().toISOString().split('T')[0]}" required>
+            </div>
+            <div class="form-group">
+                <label>Total Amount (₹)</label>
+                <input type="number" id="new-bill-total" min="0" step="0.01" value="0" required>
+            </div>
+            <div class="form-group">
+                <label>Paid Amount (₹)</label>
+                <input type="number" id="new-bill-paid" min="0" step="0.01" value="0" required>
+            </div>
+            <div class="form-group">
+                <label>Balance (₹)</label>
+                <input type="text" id="new-bill-balance" value="0.00" readonly>
+            </div>
+            <div style="display: flex; justify-content: flex-end; gap: 1rem; margin-top: 1.5rem;">
+                <button class="btn-danger" id="cancel-new-bill-btn">Cancel</button>
+                <button class="btn-success" id="confirm-new-bill-btn">Add Bill</button>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(modal);
+    modal.style.display = 'flex';
+
+    const totalInput = document.getElementById('new-bill-total');
+    const paidInput = document.getElementById('new-bill-paid');
+    const balInput = document.getElementById('new-bill-balance');
+
+    const updateBal = () => {
+        const t = parseFloat(totalInput.value) || 0;
+        const p = parseFloat(paidInput.value) || 0;
+        balInput.value = (t - p).toFixed(2);
+    };
+
+    totalInput.addEventListener('input', updateBal);
+    paidInput.addEventListener('input', updateBal);
+
+    document.getElementById('cancel-new-bill-btn').onclick = () => modal.remove();
+
+    document.getElementById('confirm-new-bill-btn').onclick = () => {
+        const t = parseFloat(totalInput.value) || 0;
+        const p = parseFloat(paidInput.value) || 0;
+        
+        if(t <= 0) {
+            showAlert('Total amount must be greater than 0.', 'danger');
+            return;
+        }
+        if(p > t) {
+            showAlert('Paid amount cannot exceed Total amount.', 'danger');
+            return;
+        }
+        
+        purchase.totalAmount += t;
+        purchase.paidAmount += p;
+        purchase.balance = purchase.totalAmount - purchase.paidAmount;
+        
+        purchase.history = purchase.history || [];
+        purchase.history.push({
+            date: document.getElementById('new-bill-date').value,
+            debit: t,
+            credit: p,
+            balance: purchase.balance,
+            note: 'New Bill Added'
+        });
+
+        saveData();
+        renderPurchaseTable();
+        updatePurchaseDashboard();
+        modal.remove();
+        showAlert('New bill added successfully!', 'success');
     };
 };
 
@@ -1054,10 +1589,31 @@ const historyPurchase = (id) => {
     let historyHtml = '';
     if (purchase.history && purchase.history.length > 0) {
         historyHtml = `
-            <table style="width:100%; border-collapse: collapse; margin-top: 1rem;">
-                <thead><tr style="background:#f6f9fc;"><th style="padding: 0.5rem;">Date</th><th style="padding: 0.5rem;">Amount</th><th style="padding: 0.5rem;">Note</th></tr></thead>
+            <table style="width:100%; border-collapse: collapse; margin-top: 1rem; font-size: 0.9rem;">
+                <thead>
+                    <tr style="background:#f6f9fc;">
+                        <th style="padding: 0.5rem; border: 1px solid #ccc;">Date</th>
+                        <th style="padding: 0.5rem; border: 1px solid #ccc;">Debit (Bill)</th>
+                        <th style="padding: 0.5rem; border: 1px solid #ccc;">Credit (Paid)</th>
+                        <th style="padding: 0.5rem; border: 1px solid #ccc;">Balance</th>
+                        <th style="padding: 0.5rem; border: 1px solid #ccc;">Note</th>
+                    </tr>
+                </thead>
                 <tbody>
-                    ${purchase.history.map(h => `<tr><td style="padding: 0.5rem; border: 1px solid #ccc;">${h.date}</td><td style="padding: 0.5rem; border: 1px solid #ccc;">${formatCurrency(h.amount)}</td><td style="padding: 0.5rem; border: 1px solid #ccc;">${h.note || 'Payment'}</td></tr>`).join('')}
+                    ${purchase.history.map(h => {
+                        // Support for legacy history objects
+                        const crd = h.credit !== undefined ? h.credit : (h.amount || 0);
+                        const dbt = h.debit !== undefined ? h.debit : 0;
+                        const bal = h.balance !== undefined ? formatCurrency(h.balance) : '-';
+                        
+                        return `<tr>
+                            <td style="padding: 0.5rem; border: 1px solid #ccc;">${h.date}</td>
+                            <td style="padding: 0.5rem; border: 1px solid #ccc; color: var(--danger-color);">${dbt > 0 ? formatCurrency(dbt) : '-'}</td>
+                            <td style="padding: 0.5rem; border: 1px solid #ccc; color: var(--accent-color);">${crd > 0 ? formatCurrency(crd) : '-'}</td>
+                            <td style="padding: 0.5rem; border: 1px solid #ccc;">${bal}</td>
+                            <td style="padding: 0.5rem; border: 1px solid #ccc;">${h.note || 'Payment'}</td>
+                        </tr>`;
+                    }).join('')}
                 </tbody>
             </table>
         `;
@@ -1066,7 +1622,7 @@ const historyPurchase = (id) => {
     }
 
     modal.innerHTML = `
-        <div class="modal-content">
+        <div class="modal-content" style="max-width: 700px;">
             <h2>Payment History (${purchase.dealerName})</h2>
             ${historyHtml}
             <div style="display: flex; justify-content: flex-end; margin-top: 1.5rem;">
@@ -1095,6 +1651,7 @@ const renderPurchaseTable = () => {
             <td>${formatCurrency(p.paidAmount)}</td>
             <td>${formatCurrency(p.balance)}</td>
             <td class="action-buttons" style="display:flex; gap: 0.5rem; flex-wrap:wrap;">
+                <button class="btn-primary" style="padding: 0.25rem 0.5rem; font-size: 0.8rem; margin:0; background-color: #6366f1;" onclick="newPurchaseBill('${p.id}')">New</button>
                 <button class="btn-primary" style="padding: 0.25rem 0.5rem; font-size: 0.8rem; margin:0;" onclick="editPurchase('${p.id}')">Edit</button>
                 <button class="btn-success" style="padding: 0.25rem 0.5rem; font-size: 0.8rem; margin:0;" onclick="payPurchase('${p.id}')">Pay</button>
                 <button class="btn-primary" style="padding: 0.25rem 0.5rem; font-size: 0.8rem; margin:0; background-color: #ff8f00;" onclick="historyPurchase('${p.id}')">History</button>
@@ -1154,6 +1711,7 @@ const generateNewQuotation = () => {
     document.getElementById('quotation-date').valueAsDate = new Date();
     document.getElementById('quotation-customer-name').value = '';
     document.getElementById('quotation-customer-phone').value = '';
+    document.getElementById('quotation-customer-state').value = 'Tamil Nadu';
     document.getElementById('quotation-customer-address').value = '';
     document.getElementById('quotation-gst-checkbox').checked = false;
     document.getElementById('quotation-discount').value = 0;
@@ -1197,7 +1755,7 @@ const setupQuotationListeners = () => {
         if (stock) {
             nameInput.value = stock.name;
             document.getElementById('quotation-item-price').value = stock.price;
-            document.getElementById('quotation-available-stock').textContent = stock.quantity;
+            document.getElementById('quotation-available-stock').textContent = `${stock.quantity} (PP: ${formatCurrency(stock.purchasePrice || 0)})`;
         }
     });
 
@@ -1213,7 +1771,7 @@ const setupQuotationListeners = () => {
         if (stock) {
             codeInput.value = stock.id;
             document.getElementById('quotation-item-price').value = stock.price;
-            document.getElementById('quotation-available-stock').textContent = stock.quantity;
+            document.getElementById('quotation-available-stock').textContent = `${stock.quantity} (PP: ${formatCurrency(stock.purchasePrice || 0)})`;
         }
     });
 
@@ -1382,7 +1940,30 @@ const saveAndPrintQuotation = () => {
     quotationData.total = currentQuotationItems.reduce((sum, item) => sum + item.total, 0);
     quotationData.total = quotationData.total - (quotationData.total * quotationData.discount / 100);
     if(document.getElementById('quotation-gst-checkbox').checked) quotationData.gst = quotationData.total * 0.18;
-    quotationData.total += quotationData.gst;
+    quotationData.total += (quotationData.gst || 0);
+
+    // Process State & GST split
+    const state = document.getElementById('quotation-customer-state').value || "Tamil Nadu";
+    let cgst = 0, sgst = 0, igst = 0, ugst = 0;
+    let gstAmount = quotationData.gst || 0;
+    
+    if (gstAmount > 0) {
+        if (state === "Tamil Nadu") {
+            cgst = gstAmount / 2;
+            sgst = gstAmount / 2;
+        } else if (UNION_TERRITORIES.includes(state)) {
+            cgst = gstAmount / 2;
+            ugst = gstAmount / 2;
+        } else {
+            igst = gstAmount;
+        }
+    }
+    
+    quotationData.state = state;
+    quotationData.cgst = cgst;
+    quotationData.sgst = sgst;
+    quotationData.igst = igst;
+    quotationData.ugst = ugst;
 
     // Increment quotation number only
     lastQuotationNo++;
@@ -1483,12 +2064,38 @@ const populateQuotationPrintView = (quote) => {
 
     const subtotal = quote.subtotal;
     const discountAmount = subtotal * (quote.discount / 100);
-    const gstAmount = quote.gst;
     const grandTotal = quote.total;
 
     document.getElementById('quotation-print-subtotal').textContent = formatCurrency(subtotal);
     document.getElementById('quotation-print-discount').textContent = formatCurrency(discountAmount);
-    document.getElementById('quotation-print-gst').textContent = formatCurrency(gstAmount);
+    
+    // Hide GST fields by default
+    document.getElementById('quotation-print-cgst-row').style.display = 'none';
+    document.getElementById('quotation-print-sgst-row').style.display = 'none';
+    document.getElementById('quotation-print-ugst-row').style.display = 'none';
+    document.getElementById('quotation-print-igst-row').style.display = 'none';
+    document.getElementById('quotation-print-total-gst-row').style.display = 'none';
+
+    if (quote.gst > 0) {
+        document.getElementById('quotation-print-total-gst-row').style.display = 'block';
+        document.getElementById('quotation-print-total-gst').textContent = formatCurrency(quote.gst);
+
+        if (quote.state === "Tamil Nadu" || !quote.state) {
+            document.getElementById('quotation-print-cgst-row').style.display = 'block';
+            document.getElementById('quotation-print-sgst-row').style.display = 'block';
+            document.getElementById('quotation-print-cgst').textContent = formatCurrency(quote.cgst !== undefined ? quote.cgst : quote.gst / 2);
+            document.getElementById('quotation-print-sgst').textContent = formatCurrency(quote.sgst !== undefined ? quote.sgst : quote.gst / 2);
+        } else if (UNION_TERRITORIES.includes(quote.state)) {
+            document.getElementById('quotation-print-cgst-row').style.display = 'block';
+            document.getElementById('quotation-print-ugst-row').style.display = 'block';
+            document.getElementById('quotation-print-cgst').textContent = formatCurrency(quote.cgst);
+            document.getElementById('quotation-print-ugst').textContent = formatCurrency(quote.ugst);
+        } else {
+            document.getElementById('quotation-print-igst-row').style.display = 'block';
+            document.getElementById('quotation-print-igst').textContent = formatCurrency(quote.igst);
+        }
+    }
+
     document.getElementById('quotation-print-grand-total').textContent = formatCurrency(grandTotal);
 
     // Top Right QR Code
@@ -1533,13 +2140,15 @@ const populateQuotationPrintView = (quote) => {
 // --- Invoice View Functions ---
 // Auto-add item when pressing Enter/Tab in Quantity field
 const qtyInput = document.getElementById('item-quantity');
-qtyInput.addEventListener('keydown', (e) => {
-    if (e.key === "Enter" || e.key === "Tab") {
-        e.preventDefault();
-        document.getElementById('add-item-btn').click();   // trigger Add Item button
-        document.getElementById('item-stock-code').focus();      // move back to Stock Code
-    }
-});
+if (qtyInput) {
+    qtyInput.addEventListener('keydown', (e) => {
+        if (e.key === "Enter" || e.key === "Tab") {
+            e.preventDefault();
+            document.getElementById('add-item-btn').click();   // trigger Add Item button
+            document.getElementById('item-stock-code').focus();      // move back to Stock Code
+        }
+    });
+}
 
 let currentInvoiceItems = [];
 
@@ -1549,12 +2158,20 @@ const generateNewInvoice = () => {
     document.getElementById('invoice-date').valueAsDate = new Date();
     document.getElementById('customer-name').value = '';
     document.getElementById('customer-phone').value = '';
+    document.getElementById('customer-state').value = 'Tamil Nadu';
     document.getElementById('customer-address').value = '';
     document.getElementById('gst-checkbox').checked = false;
     document.getElementById('discount').value = 0;
     document.getElementById('total-amount').value = formatCurrency(0);
-    document.getElementById('payment-status').value = 'Full Paid';
-    document.getElementById('payment-mode').value = 'Cash';
+    
+    const psEl = document.getElementById('payment-status');
+    if(psEl && psEl.tagName === 'SELECT') { psEl.value = 'Full Paid'; }
+    else { const rad = document.querySelector('input[name="payment-status"][value="Full Paid"]'); if(rad) rad.checked = true; }
+    
+    const pmEl = document.getElementById('payment-mode');
+    if(pmEl && pmEl.tagName === 'SELECT') { pmEl.value = 'Cash'; }
+    else { const rad = document.querySelector('input[name="payment-mode"][value="Cash"]'); if(rad) rad.checked = true; }
+
     document.getElementById('paid-balance-row').style.display = 'none';
     document.getElementById('paid-amount').value = '';
     currentInvoiceItems = [];
@@ -1597,7 +2214,6 @@ const setupInvoiceListeners = () => {
 const codeInput = document.getElementById('item-stock-code');
 const nameInput = document.getElementById('item-stock-name');
 const qtyInput = document.getElementById('item-quantity');
-const paymentStatusSelect = document.getElementById('payment-status');
 const discountInput = document.getElementById('discount');
 const gstCheckbox = document.getElementById('gst-checkbox');
 const savePrintBtn = document.getElementById('save-print-btn');
@@ -1619,7 +2235,7 @@ const stock = stocks.find(s => s.id === codeInput.value.toUpperCase());
 if (stock) {
     nameInput.value = stock.name;
     document.getElementById('item-price').value = stock.price;
-    document.getElementById('available-stock').textContent = stock.quantity;
+    document.getElementById('available-stock').textContent = `${stock.quantity} (PP: ${formatCurrency(stock.purchasePrice || 0)})`;
 }
 });
 
@@ -1635,7 +2251,7 @@ const stock = stocks.find(s => s.name.toLowerCase() === nameInput.value.toLowerC
 if (stock) {
     codeInput.value = stock.id;
     document.getElementById('item-price').value = stock.price;
-    document.getElementById('available-stock').textContent = stock.quantity;
+    document.getElementById('available-stock').textContent = `${stock.quantity} (PP: ${formatCurrency(stock.purchasePrice || 0)})`;
 }
 });
 
@@ -1707,17 +2323,30 @@ discountInput.addEventListener('input', updateInvoiceTotal);
 gstCheckbox.addEventListener('change', updateInvoiceTotal);
 
 // Payment status changes
-paymentStatusSelect.addEventListener('change', (e) => {
-const row = document.getElementById('paid-balance-row');
-if (e.target.value === 'Partially Paid' || e.target.value === 'Not Paid') {
-    document.getElementById('paid-amount').required = true;
-    row.style.display = 'flex';
+const paymentStatusSelect = document.getElementById('payment-status');
+if (paymentStatusSelect && paymentStatusSelect.tagName === 'SELECT') {
+    paymentStatusSelect.addEventListener('change', (e) => {
+        handlePaymentStatusChange(e.target.value);
+    });
 } else {
-    document.getElementById('paid-amount').required = false;
-    row.style.display = 'none';
+    document.querySelectorAll('input[name="payment-status"]').forEach(radio => {
+        radio.addEventListener('change', (e) => {
+            handlePaymentStatusChange(e.target.value);
+        });
+    });
 }
-updatePaidBalance();
-});
+
+function handlePaymentStatusChange(val) {
+    const row = document.getElementById('paid-balance-row');
+    if (val === 'Partially Paid' || val === 'Not Paid') {
+        document.getElementById('paid-amount').required = true;
+        row.style.display = 'flex';
+    } else {
+        document.getElementById('paid-amount').required = false;
+        row.style.display = 'none';
+    }
+    updatePaidBalance();
+}
 
 document.getElementById('paid-amount').addEventListener('input', updatePaidBalance);
 
@@ -1731,7 +2360,14 @@ savePrintBtn.addEventListener('click', () => {
 const updatePaidBalance = () => {
 const total = parseFloat(document.getElementById('total-amount').value.replace('₹', '')) || 0;
 const paid = parseFloat(document.getElementById('paid-amount').value) || 0;
-const status = document.getElementById('payment-status').value;
+
+let status = 'Full Paid';
+const psEl = document.getElementById('payment-status');
+if(psEl && psEl.tagName === 'SELECT') { status = psEl.value; }
+else { 
+    const checkedRad = document.querySelector('input[name="payment-status"]:checked');
+    if(checkedRad) status = checkedRad.value; 
+}
 
 if (status === 'Partially Paid' && paid >= total) {
 showAlert('Paid amount cannot be greater than or equal to total for partial payment.', 'danger');
@@ -1866,8 +2502,8 @@ const saveAndPrintInvoice = () => {
         discount: parseFloat(document.getElementById('discount').value) || 0,
         gst: document.getElementById('gst-checkbox').checked ? (currentInvoiceItems.reduce((sum, item) => sum + item.total, 0) - (currentInvoiceItems.reduce((sum, item) => sum + item.total, 0) * (parseFloat(document.getElementById('discount').value) || 0) / 100)) * 0.18 : 0,
         total: parseFloat(document.getElementById('total-amount').value.replace('₹', '').replace('-', '')),
-        status: document.getElementById('payment-status').value,
-        mode: document.getElementById('payment-mode').value,
+        status: (document.getElementById('payment-status') && document.getElementById('payment-status').tagName === 'SELECT') ? document.getElementById('payment-status').value : document.querySelector('input[name="payment-status"]:checked')?.value || 'Full Paid',
+        mode: (document.getElementById('payment-mode') && document.getElementById('payment-mode').tagName === 'SELECT') ? document.getElementById('payment-mode').value : document.querySelector('input[name="payment-mode"]:checked')?.value || 'Cash',
         paid: parseFloat(document.getElementById('paid-amount').value) || 0,
         balance: parseFloat(document.getElementById('balance-amount').value) || 0,
     };
@@ -1876,7 +2512,30 @@ const saveAndPrintInvoice = () => {
     invoiceData.total = currentInvoiceItems.reduce((sum, item) => sum + item.total, 0);
     invoiceData.total = invoiceData.total - (invoiceData.total * invoiceData.discount / 100);
     if(document.getElementById('gst-checkbox').checked) invoiceData.gst = invoiceData.total * 0.18;
-    invoiceData.total += invoiceData.gst;
+    invoiceData.total += (invoiceData.gst || 0);
+
+    // Process State & GST split
+    const state = document.getElementById('customer-state').value || "Tamil Nadu";
+    let cgst = 0, sgst = 0, igst = 0, ugst = 0;
+    let gstAmount = invoiceData.gst || 0;
+    
+    if (gstAmount > 0) {
+        if (state === "Tamil Nadu") {
+            cgst = gstAmount / 2;
+            sgst = gstAmount / 2;
+        } else if (UNION_TERRITORIES.includes(state)) {
+            cgst = gstAmount / 2;
+            ugst = gstAmount / 2;
+        } else {
+            igst = gstAmount;
+        }
+    }
+    
+    invoiceData.state = state;
+    invoiceData.cgst = cgst;
+    invoiceData.sgst = sgst;
+    invoiceData.igst = igst;
+    invoiceData.ugst = ugst;
 
     // --- Save customer details into customers DB ---
     if (invoiceData.customerName && invoiceData.customerName !== 'Guest') {
@@ -2044,12 +2703,38 @@ const populatePrintView = (invoice) => {
 
     const subtotal = invoice.subtotal;
     const discountAmount = subtotal * (invoice.discount / 100);
-    const gstAmount = invoice.gst;
     const grandTotal = invoice.total;
 
     document.getElementById('print-subtotal').textContent = formatCurrency(subtotal);
     document.getElementById('print-discount').textContent = formatCurrency(discountAmount);
-    document.getElementById('print-gst').textContent = formatCurrency(gstAmount);
+    
+    // Hide GST fields by default
+    document.getElementById('print-cgst-row').style.display = 'none';
+    document.getElementById('print-sgst-row').style.display = 'none';
+    document.getElementById('print-ugst-row').style.display = 'none';
+    document.getElementById('print-igst-row').style.display = 'none';
+    document.getElementById('print-total-gst-row').style.display = 'none';
+
+    if (invoice.gst > 0) {
+        document.getElementById('print-total-gst-row').style.display = 'block';
+        document.getElementById('print-total-gst').textContent = formatCurrency(invoice.gst);
+
+        if (invoice.state === "Tamil Nadu" || !invoice.state) {
+            document.getElementById('print-cgst-row').style.display = 'block';
+            document.getElementById('print-sgst-row').style.display = 'block';
+            document.getElementById('print-cgst').textContent = formatCurrency(invoice.cgst !== undefined ? invoice.cgst : invoice.gst / 2);
+            document.getElementById('print-sgst').textContent = formatCurrency(invoice.sgst !== undefined ? invoice.sgst : invoice.gst / 2);
+        } else if (UNION_TERRITORIES.includes(invoice.state)) {
+            document.getElementById('print-cgst-row').style.display = 'block';
+            document.getElementById('print-ugst-row').style.display = 'block';
+            document.getElementById('print-cgst').textContent = formatCurrency(invoice.cgst);
+            document.getElementById('print-ugst').textContent = formatCurrency(invoice.ugst);
+        } else {
+            document.getElementById('print-igst-row').style.display = 'block';
+            document.getElementById('print-igst').textContent = formatCurrency(invoice.igst);
+        }
+    }
+    
     document.getElementById('print-grand-total').textContent = formatCurrency(grandTotal);
     document.getElementById('print-payment-status').textContent = invoice.status;
     document.getElementById('print-payment-mode').textContent = invoice.mode;
@@ -2380,6 +3065,28 @@ window.viewInvoice = viewInvoice;
     selectedInvoiceForReturn.total = afterDisc + selectedInvoiceForReturn.gst; 
     selectedInvoiceForReturn.balance = selectedInvoiceForReturn.total - (selectedInvoiceForReturn.paid || 0);
 
+    // Reprocess GST state splits properly upon return if GST exists
+    if (selectedInvoiceForReturn.gst > 0) {
+        const state = selectedInvoiceForReturn.state || "Tamil Nadu";
+        let cgst = 0, sgst = 0, igst = 0, ugst = 0;
+        if (state === "Tamil Nadu") {
+            cgst = selectedInvoiceForReturn.gst / 2;
+            sgst = selectedInvoiceForReturn.gst / 2;
+        } else if (UNION_TERRITORIES.includes(state)) {
+            cgst = selectedInvoiceForReturn.gst / 2;
+            ugst = selectedInvoiceForReturn.gst / 2;
+        } else {
+            igst = selectedInvoiceForReturn.gst;
+        }
+        selectedInvoiceForReturn.cgst = cgst;
+        selectedInvoiceForReturn.sgst = sgst;
+        selectedInvoiceForReturn.igst = igst;
+        selectedInvoiceForReturn.ugst = ugst;
+    } else {
+        selectedInvoiceForReturn.cgst = 0; selectedInvoiceForReturn.sgst = 0;
+        selectedInvoiceForReturn.igst = 0; selectedInvoiceForReturn.ugst = 0;
+    }
+
     if(selectedInvoiceForReturn.customerPhone){
         const cust=customers.find(c=>c.phone===selectedInvoiceForReturn.customerPhone);
         if(cust&&cust.transactions){
@@ -2396,25 +3103,3 @@ window.viewInvoice = viewInvoice;
     showAlert('Return processed successfully!', 'success');
     document.getElementById('return-modal').style.display = 'none';
 });
-
-// --- Settings View Functions ---
-const renderSettingsForm = () => {
-    document.getElementById('company-name').value = companyInfo.name;
-    document.getElementById('company-phone').value = companyInfo.phone;
-    document.getElementById('company-address').value = companyInfo.address;
-    document.getElementById('company-email').value = companyInfo.email;
-    document.getElementById('company-gstin').value = companyInfo.gstin;
-    document.getElementById('upi-id').value = companyInfo.upiId;
-};
-
-const updateSettings = (e) => {
-    e.preventDefault();
-    companyInfo.name = document.getElementById('company-name').value;
-    companyInfo.phone = document.getElementById('company-phone').value;
-    companyInfo.address = document.getElementById('company-address').value;
-    companyInfo.email = document.getElementById('company-email').value;
-    companyInfo.gstin = document.getElementById('company-gstin').value;
-    companyInfo.upiId = document.getElementById('upi-id').value;
-    saveData();
-    showAlert('Settings updated successfully!', 'success');
-};
