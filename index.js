@@ -948,13 +948,14 @@ function printDailyReport() {
     reportView.classList.add('print-view');
     
     const reportContent = document.getElementById('daily-report-print-area').innerHTML;
-    const defaultLogo = "https://firebasestorage.googleapis.com/v0/b/mjsmartapps.firebasestorage.app/o/logo-removebg-preview.png?alt=media&token=90fb939f-ab11-41c4-8485-cd7e8b0414d6";
-    const logoSrc = companyInfo.logoUrl || defaultLogo;
+    const logoSrc = companyInfo.logoUrl || "";
+    const watermarkHtml = logoSrc ? `<img src="${logoSrc}" style="position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); opacity:0.1; z-index:-1; pointer-events:none; width:350px;">` : "";
+    const topLogoHtml = logoSrc ? `<img src="${logoSrc}" style="position:absolute; top:0; left:0; width:100px; height:100px; object-fit:contain;">` : "";
 
     reportView.innerHTML = `
-        <img src="${logoSrc}" style="position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); opacity:0.1; z-index:-1; pointer-events:none; width:350px;">
+        ${watermarkHtml}
         <div class="invoice-header" style="position:relative; min-height:120px; padding:0 120px; text-align:center;">
-            <img src="${logoSrc}" style="position:absolute; top:0; left:0; width:100px; height:100px; object-fit:contain;">
+            ${topLogoHtml}
             <div style="position:absolute; top:0; right:0; text-align:center;">
                 <div id="report-dynamic-qr" style="display:flex; justify-content:center; margin:0;"></div>
             </div>
@@ -2077,15 +2078,13 @@ const populateQuotationPrintView = (quote) => {
     const printView = document.getElementById('quotation-print-view');
     printView.style.position = 'relative';
 
-    const defaultLogo = "https://firebasestorage.googleapis.com/v0/b/mjsmartapps.firebasestorage.app/o/logo-removebg-preview.png?alt=media&token=90fb939f-ab11-41c4-8485-cd7e8b0414d6";
-    const logoSrc = companyInfo.logoUrl || defaultLogo;
+    const logoSrc = companyInfo.logoUrl || "";
 
     // Dynamic Watermark
     let watermark = document.getElementById('quotation-watermark');
     if (!watermark) {
         watermark = document.createElement('img');
         watermark.id = 'quotation-watermark';
-        watermark.src = logoSrc;
         watermark.style.position = 'fixed';
         watermark.style.top = '50%';
         watermark.style.left = '50%';
@@ -2095,9 +2094,9 @@ const populateQuotationPrintView = (quote) => {
         watermark.style.pointerEvents = 'none';
         watermark.style.width = '350px';
         printView.appendChild(watermark);
-    } else {
-        watermark.src = logoSrc;
     }
+    watermark.src = logoSrc;
+    watermark.style.display = logoSrc ? 'block' : 'none';
 
     // Header Setup
     const header = document.querySelector('#quotation-print-view .invoice-header');
@@ -2110,7 +2109,6 @@ const populateQuotationPrintView = (quote) => {
     if (!topLogo) {
         topLogo = document.createElement('img');
         topLogo.id = 'quotation-top-logo';
-        topLogo.src = logoSrc;
         topLogo.style.position = 'absolute';
         topLogo.style.top = '0';
         topLogo.style.left = '0';
@@ -2118,9 +2116,9 @@ const populateQuotationPrintView = (quote) => {
         topLogo.style.height = '100px';
         topLogo.style.objectFit = 'contain';
         header.appendChild(topLogo);
-    } else {
-        topLogo.src = logoSrc;
     }
+    topLogo.src = logoSrc;
+    topLogo.style.display = logoSrc ? 'block' : 'none';
 
     document.getElementById('quotation-print-company-name').textContent = companyInfo.name;
     document.getElementById('quotation-print-company-address').textContent = companyInfo.address;
@@ -2715,15 +2713,13 @@ const populatePrintView = (invoice) => {
     const printView = document.getElementById('print-view');
     printView.style.position = 'relative';
 
-    const defaultLogo = "https://firebasestorage.googleapis.com/v0/b/mjsmartapps.firebasestorage.app/o/logo-removebg-preview.png?alt=media&token=90fb939f-ab11-41c4-8485-cd7e8b0414d6";
-    const logoSrc = companyInfo.logoUrl || defaultLogo;
+    const logoSrc = companyInfo.logoUrl || "";
 
     // --- Dynamic Watermark ---
     let watermark = document.getElementById('invoice-watermark');
     if (!watermark) {
         watermark = document.createElement('img');
         watermark.id = 'invoice-watermark';
-        watermark.src = logoSrc;
         watermark.style.position = 'fixed';
         watermark.style.top = '50%';
         watermark.style.left = '50%';
@@ -2733,9 +2729,9 @@ const populatePrintView = (invoice) => {
         watermark.style.pointerEvents = 'none';
         watermark.style.width = '350px';
         printView.appendChild(watermark);
-    } else {
-        watermark.src = logoSrc;
     }
+    watermark.src = logoSrc;
+    watermark.style.display = logoSrc ? 'block' : 'none';
 
     // --- Invoice Header Setup ---
     const header = document.querySelector('#print-view .invoice-header');
@@ -2748,7 +2744,6 @@ const populatePrintView = (invoice) => {
     if (!topLogo) {
         topLogo = document.createElement('img');
         topLogo.id = 'invoice-top-logo';
-        topLogo.src = logoSrc;
         topLogo.style.position = 'absolute';
         topLogo.style.top = '0';
         topLogo.style.left = '0';
@@ -2756,9 +2751,9 @@ const populatePrintView = (invoice) => {
         topLogo.style.height = '100px';
         topLogo.style.objectFit = 'contain';
         header.appendChild(topLogo);
-    } else {
-        topLogo.src = logoSrc;
     }
+    topLogo.src = logoSrc;
+    topLogo.style.display = logoSrc ? 'block' : 'none';
 
     document.getElementById('print-company-name').textContent = companyInfo.name;
     document.getElementById('print-company-address').textContent = companyInfo.address;
