@@ -35,12 +35,13 @@ let purchases = [];
 let customers = [];
 let companyInfo = {
     ownerName: "",
-    name: "MJ SMART APP",
-    phone: "+91 8220403716",
-    address: "Ramanathapuram",
-    email: "mjappkdl@gmail.com",
-    gstin: "29AABCJ1234A1Z5",
-    upiId: "jeyajegadeesh1606-1@oksbi"
+    name: "",
+    phone: "",
+    address: "",
+    email: "",
+    gstin: "",
+    upiId: "",
+    logoUrl: ""
 };
 let lastInvoiceNo = 1000;
 let lastQuotationNo = 1000;
@@ -134,6 +135,7 @@ const loadData = async () => {
         }
 
         if (showProfile) {
+            document.getElementById('profile-close-btn').style.display = 'none';
             document.getElementById('profile-phone').value = auth.currentUser.phoneNumber || companyInfo.phone || '';
             document.getElementById('profile-owner-name').value = companyInfo.ownerName || '';
             document.getElementById('profile-company-name').value = companyInfo.name === "MJ SMART APP" ? '' : companyInfo.name;
@@ -141,6 +143,7 @@ const loadData = async () => {
             document.getElementById('profile-email').value = companyInfo.email || '';
             document.getElementById('profile-gstin').value = companyInfo.gstin || '';
             document.getElementById('profile-upi').value = companyInfo.upiId || '';
+            document.getElementById('profile-logo-url').value = companyInfo.logoUrl && !companyInfo.logoUrl.startsWith('data:') ? companyInfo.logoUrl : '';
 
             document.getElementById('profile-modal').style.display = 'flex';
         }
@@ -340,6 +343,28 @@ document.addEventListener('DOMContentLoaded', () => {
         headerNav.style.justifyContent = 'center';
         headerNav.style.width = '100%';
         headerNav.style.marginTop = '1rem';
+        
+        // --- Add Dynamic Profile Nav Link ---
+        const profileNavLink = document.createElement('a');
+        profileNavLink.href = "#";
+        profileNavLink.className = "nav-link";
+        profileNavLink.innerHTML = `<svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg><span>Profile</span>`;
+        profileNavLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            document.getElementById('profile-close-btn').style.display = 'block';
+            document.getElementById('profile-phone').value = companyInfo.phone || '';
+            document.getElementById('profile-owner-name').value = companyInfo.ownerName || '';
+            document.getElementById('profile-company-name').value = companyInfo.name === "MJ SMART APP" ? '' : companyInfo.name;
+            document.getElementById('profile-address').value = companyInfo.address === "Ramanathapuram" ? '' : companyInfo.address;
+            document.getElementById('profile-email').value = companyInfo.email || '';
+            document.getElementById('profile-gstin').value = companyInfo.gstin || '';
+            document.getElementById('profile-upi').value = companyInfo.upiId || '';
+            document.getElementById('profile-logo-url').value = companyInfo.logoUrl && !companyInfo.logoUrl.startsWith('data:') ? companyInfo.logoUrl : '';
+            tempLogoBase64 = ""; 
+            document.getElementById('profile-logo-file').value = "";
+            document.getElementById('profile-modal').style.display = 'flex';
+        });
+        headerNav.appendChild(profileNavLink);
     }
 
     const dsInput = document.getElementById('date-search');
@@ -393,15 +418,35 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
         `;
     }
+    
+    // --- Update Payment Modal - Dynamic Paid Button ---
+    const updatePaymentModalActions = document.querySelector('#update-payment-modal .modal-content > div[style="text-align: right;"]');
+    if (updatePaymentModalActions) {
+        updatePaymentModalActions.style.display = 'flex';
+        updatePaymentModalActions.style.justifyContent = 'space-between';
+        
+        const autoPaidBtn = document.createElement('button');
+        autoPaidBtn.type = 'button';
+        autoPaidBtn.className = 'btn-primary';
+        autoPaidBtn.textContent = 'Paid';
+        autoPaidBtn.onclick = () => {
+            document.getElementById('update-paid-amount').value = document.getElementById('update-total-amount').value;
+        };
+        
+        updatePaymentModalActions.insertBefore(autoPaidBtn, updatePaymentModalActions.firstChild);
+    }
     // --------------------------------------------------------------------------
 
     // --- Profile Modal Dynamic Injection ---
+    window.tempLogoBase64 = "";
+
     const profileModal = document.createElement('div');
     profileModal.id = 'profile-modal';
     profileModal.className = 'modal';
     profileModal.style.display = 'none';
     profileModal.innerHTML = `
-        <div class="modal-content" style="max-width: 450px;">
+        <div class="modal-content" style="max-width: 450px; max-height: 90vh; overflow-y: auto;">
+            <span class="close-btn" id="profile-close-btn" style="display:none;">&times;</span>
             <h2 style="margin-bottom: 0.5rem; text-align: center; color: var(--primary-color); border: none;">Complete Profile</h2>
             <p style="text-align:center; margin-bottom: 1rem; font-size: 11px; color: #d32f2f;">Please update your profile information to continue.</p>
             <form id="profile-form" style="margin-bottom: 0; box-shadow: none; border: none; padding: 0;">
@@ -433,11 +478,40 @@ document.addEventListener('DOMContentLoaded', () => {
                     <label for="profile-upi">UPI ID (Optional)</label>
                     <input type="text" id="profile-upi" placeholder="e.g., yourname@upi">
                 </div>
+                <div class="form-group">
+                    <label for="profile-logo-file">Logo Image (Max 50KB)</label>
+                    <input type="file" id="profile-logo-file" accept="image/*">
+                </div>
+                <div class="form-group">
+                    <label for="profile-logo-url">OR Logo URL</label>
+                    <input type="url" id="profile-logo-url" placeholder="https://example.com/logo.png">
+                </div>
                 <button type="submit" class="btn-primary" style="width: 100%; margin-top: 1rem;">Save Profile</button>
             </form>
         </div>
     `;
     document.body.appendChild(profileModal);
+
+    document.getElementById('profile-close-btn').addEventListener('click', () => {
+        document.getElementById('profile-modal').style.display = 'none';
+    });
+
+    document.getElementById('profile-logo-file').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            if (file.size > 50 * 1024) {
+                showAlert("Image size must be less than 50KB", "danger");
+                this.value = "";
+                tempLogoBase64 = "";
+                return;
+            }
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                tempLogoBase64 = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+    });
 
     document.getElementById('profile-form').addEventListener('submit', (e) => {
         e.preventDefault();
@@ -448,6 +522,17 @@ document.addEventListener('DOMContentLoaded', () => {
         companyInfo.email = document.getElementById('profile-email').value.trim();
         companyInfo.gstin = document.getElementById('profile-gstin').value.trim();
         companyInfo.upiId = document.getElementById('profile-upi').value.trim();
+
+        const urlVal = document.getElementById('profile-logo-url').value.trim();
+        if (tempLogoBase64) {
+            companyInfo.logoUrl = tempLogoBase64;
+        } else if (urlVal) {
+            companyInfo.logoUrl = urlVal;
+        } else if (!document.getElementById('profile-logo-file').value && companyInfo.logoUrl && companyInfo.logoUrl.startsWith('data:')) {
+            // Keep the existing base64 image if no new file was chosen and URL is empty
+        } else {
+            companyInfo.logoUrl = "";
+        }
 
         saveData();
 
@@ -863,7 +948,8 @@ function printDailyReport() {
     reportView.classList.add('print-view');
     
     const reportContent = document.getElementById('daily-report-print-area').innerHTML;
-    const logoSrc = "https://firebasestorage.googleapis.com/v0/b/mjsmartapps.firebasestorage.app/o/logo-removebg-preview.png?alt=media&token=90fb939f-ab11-41c4-8485-cd7e8b0414d6";
+    const defaultLogo = "https://firebasestorage.googleapis.com/v0/b/mjsmartapps.firebasestorage.app/o/logo-removebg-preview.png?alt=media&token=90fb939f-ab11-41c4-8485-cd7e8b0414d6";
+    const logoSrc = companyInfo.logoUrl || defaultLogo;
 
     reportView.innerHTML = `
         <img src="${logoSrc}" style="position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); opacity:0.1; z-index:-1; pointer-events:none; width:350px;">
@@ -1991,7 +2077,8 @@ const populateQuotationPrintView = (quote) => {
     const printView = document.getElementById('quotation-print-view');
     printView.style.position = 'relative';
 
-    const logoSrc = "https://firebasestorage.googleapis.com/v0/b/mjsmartapps.firebasestorage.app/o/logo-removebg-preview.png?alt=media&token=90fb939f-ab11-41c4-8485-cd7e8b0414d6";
+    const defaultLogo = "https://firebasestorage.googleapis.com/v0/b/mjsmartapps.firebasestorage.app/o/logo-removebg-preview.png?alt=media&token=90fb939f-ab11-41c4-8485-cd7e8b0414d6";
+    const logoSrc = companyInfo.logoUrl || defaultLogo;
 
     // Dynamic Watermark
     let watermark = document.getElementById('quotation-watermark');
@@ -2628,7 +2715,8 @@ const populatePrintView = (invoice) => {
     const printView = document.getElementById('print-view');
     printView.style.position = 'relative';
 
-    const logoSrc = "https://firebasestorage.googleapis.com/v0/b/mjsmartapps.firebasestorage.app/o/logo-removebg-preview.png?alt=media&token=90fb939f-ab11-41c4-8485-cd7e8b0414d6";
+    const defaultLogo = "https://firebasestorage.googleapis.com/v0/b/mjsmartapps.firebasestorage.app/o/logo-removebg-preview.png?alt=media&token=90fb939f-ab11-41c4-8485-cd7e8b0414d6";
+    const logoSrc = companyInfo.logoUrl || defaultLogo;
 
     // --- Dynamic Watermark ---
     let watermark = document.getElementById('invoice-watermark');
