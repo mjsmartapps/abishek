@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MJ SMART APPS</title>
+    <title>MJ SMART BILLING</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -24,12 +24,12 @@
 
             <div class="flex flex-col items-center justify-center text-center py-6" style="width: 100%;">
               <h2 class="text-6xl sm:text-7xl md:text-8xl font-extrabold uppercase drop-shadow-2xl"
-                  style="font-family: 'Montserrat', sans-serif; letter-spacing: 10px; color: #ff0000; margin-bottom: 0.5rem;">
-                ABISHEK ELECTRICALS
+                  style="font-family: 'Montserrat', sans-serif; letter-spacing: 10px; color: #ff0000; margin-bottom: 0.5rem; border-bottom: none; font-size: 24px !important; text-shadow: 1px 1px 2px rgba(0,0,0,0.2);">
+                MJ SMART BILLING
               </h2>
 
               <span class="mt-3 text-lg sm:text-xl md:text-2xl font-bold tracking-widest uppercase"
-                  style="font-family: 'Playfair Display', serif; letter-spacing: 3px; color: #ffffff; display: block;">
+                  style="font-family: 'Playfair Display', serif; letter-spacing: 3px; color: #ffffff; display: block; font-size: 14px !important;">
               DESIGNED BY MJ SMART APPS
               </span>
             </div>
@@ -63,10 +63,6 @@
                     <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
                     <span>Report</span>
                 </a>
-                <a href="#" class="nav-link" data-view="settings-view">
-                    <svg viewBox="0 0 24 24"><path d="M12 15.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5s2.5 1.12 2.5 2.5s-1.12 2.5-2.5 2.5zm7.31-6.19c-.27-.12-.55-.16-.85-.12c-.59-.01-1.18.06-1.76.19c-.38.08-.75.2-.95.34c-1.28-1.55-2.8-2.51-4.71-2.91c-.24-.05-.48-.08-.72-.11c-.55-.06-1.1-.09-1.65-.09c-2.31 0-4.62.24-6.84.75c-.39.09-.77.21-1.15.35c-.44.15-1.05.3-1.44.47c-.22.1-.4.2-.64.33c-.09.05-.17.11-.25.18l-1.42 1.42c-.22.22-.22.58 0 .8l1.42 1.42c.07.07.13.15.18.25c.13.24.23.42.33.64c.17.39.32.99.47 1.44c.14.38.26.76.35 1.15c.51 2.22.75 4.53.75 6.84c0 .55-.03 1.1-.09 1.65c-.03.24-.06.48-.11.72c-.4 1.91-1.36 3.43-2.91 4.71c-.14.2-.26.57-.34.95c-.13.58-.2 1.17-.19 1.76c.04.3.08.58.12.85l1.42 1.42c.22.22.58.22.8 0l1.42-1.42c.07-.07.15-.13.25-.18c.24-.13.42-.23.33-.64c.39-.17.99-.32 1.44-.47c.38-.14.76-.26.35-.64c-.17-.39-.32-.99-.47-1.44c-.14-.38-.26-.76-.35-1.15c-.51-2.22-.75-4.53-.75-6.84c0-.55.03-1.1.09-1.65c.03-.24.06-.48.11-.72c.4-1.91 1.36-3.43 2.91-4.71c.14-.2.26-.57.34-.95c.13-.58.2-1.17.19-1.76c-.04-.3-.08-.58-.12-.85l-1.42-1.42z" /></svg>
-                    <span>Designer</span>
-                </a>
             </nav>
         </header>
 
@@ -93,10 +89,10 @@
                         <div class="card-title">Today Total Amount</div>
                         <div class="card-value" id="today-total-amount">₹0.00</div>
                     </div>
-                    <div class="dashboard-card" onclick="showView('report-view')" style="cursor: pointer; background: linear-gradient(135deg, var(--primary-light), var(--primary-color)); color: white;">
-                        <span class="card-icon" style="color: white;">📊</span>
-                        <div class="card-title" style="color: #e0e0e0;">Daily Report</div>
-                        <div class="card-value" style="color: white; font-size: 2rem;">View / Print</div>
+                    <div class="dashboard-card" onclick="showView('report-view')" style="cursor: pointer; background: #e1f5fe; border-top: 3px solid #0288d1;">
+                        <span class="card-icon" style="color: #0288d1;">📊</span>
+                        <div class="card-title" style="color: #0288d1;">Daily Report</div>
+                        <div class="card-value" style="color: #0288d1;">View / Print</div>
                     </div>
 
                     <div class="dashboard-card today-sales-card">
@@ -115,7 +111,7 @@
                     </div>
                 </div>
                 
-                <div id="low-stock-list-container" style="margin-top: 2rem; display: none;">
+                <div id="low-stock-list-container" style="margin-top: 1rem; display: none;">
                     <h2>Low Stock Items</h2>
                     <ul class="low-stock-list"></ul>
                 </div>
@@ -124,7 +120,7 @@
             <div id="stock-view" class="view">
                 <h1>Stock Management</h1>
                 
-                <div class="stock-header-actions" style="display: flex; gap: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap;">
+                <div class="stock-header-actions" style="display: flex; gap: 0.5rem; margin-bottom: 0.75rem; flex-wrap: wrap;">
                     <button class="btn-success" onclick="document.getElementById('stock-file-input').click()">Import CSV</button>
                     <input type="file" id="stock-file-input" style="display:none;" accept=".csv">
                     <button class="btn-primary" onclick="exportCSV()">Export CSV</button>
@@ -148,6 +144,10 @@
                             <input type="number" id="stock-quantity" min="0" required>
                         </div>
                         <div class="form-group">
+                            <label for="stock-purchase-price">Purchase Price (₹)</label>
+                            <input type="number" id="stock-purchase-price" min="0" step="0.01" required>
+                        </div>
+                        <div class="form-group">
                             <label for="stock-price">Unit Price (₹)</label>
                             <input type="number" id="stock-price" min="0" step="0.01" required>
                         </div>
@@ -164,11 +164,11 @@
                     </div>
                     <button type="submit" class="btn-success" id="add-stock-btn">Add Stock</button>
                 </form>
-                <div style="margin-top: 2rem;" class="stock-table-container">
-                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 1rem;">
-                        <h2 style="margin-bottom: 0;">Current Stock</h2>
-                        <div style="display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;">
-                            <div class="form-group" style="margin-bottom: 0; width: 300px; max-width: 100%;">
+                <div style="margin-top: 1rem;" class="stock-table-container">
+                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 0.5rem;">
+                        <h2 style="margin-bottom: 0; border: none;">Current Stock</h2>
+                        <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+                            <div class="form-group" style="margin-bottom: 0; width: 250px; max-width: 100%;">
                                 <input type="text" id="stock-search" placeholder="Search by item code or name...">
                             </div>
                             <button class="btn-danger" id="delete-selected-btn" style="margin: 0;">Delete Selected</button>
@@ -182,6 +182,7 @@
                                 <th>Item Name</th>
                                 <th>HSN Code</th>
                                 <th>Quantity</th>
+                                <th>Purchase Price</th>
                                 <th>Unit Price</th>
                                 <th>Low Stock</th>
                                 <th>Action</th>
@@ -215,6 +216,47 @@
                             <label for="quotation-customer-phone">Phone</label>
                             <input type="tel" id="quotation-customer-phone">
                         </div>
+                        <div class="form-group">
+                            <label for="quotation-customer-state">State</label>
+                            <select id="quotation-customer-state">
+                                <option value="Andaman and Nicobar Islands">Andaman and Nicobar Islands</option>
+                                <option value="Andhra Pradesh">Andhra Pradesh</option>
+                                <option value="Arunachal Pradesh">Arunachal Pradesh</option>
+                                <option value="Assam">Assam</option>
+                                <option value="Bihar">Bihar</option>
+                                <option value="Chandigarh">Chandigarh</option>
+                                <option value="Chhattisgarh">Chhattisgarh</option>
+                                <option value="Dadra and Nagar Haveli and Daman and Diu">Dadra and Nagar Haveli and Daman and Diu</option>
+                                <option value="Delhi">Delhi</option>
+                                <option value="Goa">Goa</option>
+                                <option value="Gujarat">Gujarat</option>
+                                <option value="Haryana">Haryana</option>
+                                <option value="Himachal Pradesh">Himachal Pradesh</option>
+                                <option value="Jammu and Kashmir">Jammu and Kashmir</option>
+                                <option value="Jharkhand">Jharkhand</option>
+                                <option value="Karnataka">Karnataka</option>
+                                <option value="Kerala">Kerala</option>
+                                <option value="Ladakh">Ladakh</option>
+                                <option value="Lakshadweep">Lakshadweep</option>
+                                <option value="Madhya Pradesh">Madhya Pradesh</option>
+                                <option value="Maharashtra">Maharashtra</option>
+                                <option value="Manipur">Manipur</option>
+                                <option value="Meghalaya">Meghalaya</option>
+                                <option value="Mizoram">Mizoram</option>
+                                <option value="Nagaland">Nagaland</option>
+                                <option value="Odisha">Odisha</option>
+                                <option value="Puducherry">Puducherry</option>
+                                <option value="Punjab">Punjab</option>
+                                <option value="Rajasthan">Rajasthan</option>
+                                <option value="Sikkim">Sikkim</option>
+                                <option value="Tamil Nadu" selected>Tamil Nadu</option>
+                                <option value="Telangana">Telangana</option>
+                                <option value="Tripura">Tripura</option>
+                                <option value="Uttar Pradesh">Uttar Pradesh</option>
+                                <option value="Uttarakhand">Uttarakhand</option>
+                                <option value="West Bengal">West Bengal</option>
+                            </select>
+                        </div>
                     </div>
                     <div class="form-group">
                         <label for="quotation-customer-address">Address</label>
@@ -239,7 +281,7 @@
                             <input type="number" id="quotation-item-price" min="0" step="0.01">
                         </div>
                     </div>
-                    <p style="margin-bottom: 1rem;">Available: <span id="quotation-available-stock">0</span></p>
+                    <p style="margin-bottom: 0.5rem; font-size: 11px;">Available: <span id="quotation-available-stock" style="font-weight: bold;">0</span></p>
                     <button type="button" class="btn-success" id="add-quotation-item-btn">Add Item</button>
                     <table id="quotation-items-table">
                         <thead>
@@ -254,16 +296,16 @@
                         </thead>
                         <tbody></tbody>
                     </table>
-                    <div style="margin-top: 2rem;">
+                    <div style="margin-top: 1rem;">
                         <div class="form-row">
-                            <div class="form-group">
-                                <label>
+                            <div class="form-group" style="display: flex; align-items: flex-end; padding-bottom: 4px;">
+                                <label style="margin: 0; font-weight: normal; display: flex; align-items: center;">
                                     <input type="checkbox" id="quotation-gst-checkbox"> Apply GST
                                 </label>
                             </div>
                             <div class="form-group">
                                 <label for="quotation-gst-percentage">GST (%)</label>
-                                <input type="number" id="quotation-gst-percentage" min="0" max="100" value="18">
+                                <input type="number" id="quotation-gst-percentage" min="0" max="100" value="18" readonly>
                             </div>
                             <div class="form-group">
                                 <label for="quotation-discount">Discount (%)</label>
@@ -273,11 +315,11 @@
                         <div class="form-row">
                             <div class="form-group">
                                 <label for="quotation-total-amount">Total Amount</label>
-                                <input type="text" id="quotation-total-amount" readonly>
+                                <input type="text" id="quotation-total-amount" readonly style="font-weight: bold; background-color: #e3f2fd;">
                             </div>
                         </div>
                     </div>
-                    <div style="text-align: right; margin-top: 1rem;">
+                    <div style="text-align: right; margin-top: 0.5rem;">
                         <button type="button" class="btn-primary" id="save-print-quotation-btn">Print Quotation</button>
                     </div>
                 </form>
@@ -306,6 +348,47 @@
                             <label for="customer-phone">Phone</label>
                             <input type="tel" id="customer-phone">
                         </div>
+                        <div class="form-group">
+                            <label for="customer-state">State</label>
+                            <select id="customer-state">
+                                <option value="Andaman and Nicobar Islands">Andaman and Nicobar Islands</option>
+                                <option value="Andhra Pradesh">Andhra Pradesh</option>
+                                <option value="Arunachal Pradesh">Arunachal Pradesh</option>
+                                <option value="Assam">Assam</option>
+                                <option value="Bihar">Bihar</option>
+                                <option value="Chandigarh">Chandigarh</option>
+                                <option value="Chhattisgarh">Chhattisgarh</option>
+                                <option value="Dadra and Nagar Haveli and Daman and Diu">Dadra and Nagar Haveli and Daman and Diu</option>
+                                <option value="Delhi">Delhi</option>
+                                <option value="Goa">Goa</option>
+                                <option value="Gujarat">Gujarat</option>
+                                <option value="Haryana">Haryana</option>
+                                <option value="Himachal Pradesh">Himachal Pradesh</option>
+                                <option value="Jammu and Kashmir">Jammu and Kashmir</option>
+                                <option value="Jharkhand">Jharkhand</option>
+                                <option value="Karnataka">Karnataka</option>
+                                <option value="Kerala">Kerala</option>
+                                <option value="Ladakh">Ladakh</option>
+                                <option value="Lakshadweep">Lakshadweep</option>
+                                <option value="Madhya Pradesh">Madhya Pradesh</option>
+                                <option value="Maharashtra">Maharashtra</option>
+                                <option value="Manipur">Manipur</option>
+                                <option value="Meghalaya">Meghalaya</option>
+                                <option value="Mizoram">Mizoram</option>
+                                <option value="Nagaland">Nagaland</option>
+                                <option value="Odisha">Odisha</option>
+                                <option value="Puducherry">Puducherry</option>
+                                <option value="Punjab">Punjab</option>
+                                <option value="Rajasthan">Rajasthan</option>
+                                <option value="Sikkim">Sikkim</option>
+                                <option value="Tamil Nadu" selected>Tamil Nadu</option>
+                                <option value="Telangana">Telangana</option>
+                                <option value="Tripura">Tripura</option>
+                                <option value="Uttar Pradesh">Uttar Pradesh</option>
+                                <option value="Uttarakhand">Uttarakhand</option>
+                                <option value="West Bengal">West Bengal</option>
+                            </select>
+                        </div>
                     </div>
                     <div class="form-group">
                         <label for="customer-address">Address</label>
@@ -332,7 +415,7 @@
                             <input type="number" id="item-price" min="0" step="0.01">
                         </div>
                     </div>
-                    <p style="margin-bottom: 1rem;">Available: <span id="available-stock">0</span></p>
+                    <p style="margin-bottom: 0.5rem; font-size: 11px;">Available: <span id="available-stock" style="font-weight: bold;">0</span></p>
                     <button type="button" class="btn-success" id="add-item-btn">Add Item</button>
                     <table id="invoice-items-table">
                         <thead>
@@ -347,16 +430,16 @@
                         </thead>
                         <tbody></tbody>
                     </table>
-                    <div style="margin-top: 2rem;">
+                    <div style="margin-top: 1rem;">
                         <div class="form-row">
-                            <div class="form-group">
-                                <label>
+                            <div class="form-group" style="display: flex; align-items: flex-end; padding-bottom: 4px;">
+                                <label style="margin: 0; font-weight: normal; display: flex; align-items: center;">
                                     <input type="checkbox" id="gst-checkbox"> Apply GST
                                 </label>
                             </div>
                             <div class="form-group">
                                 <label for="gst-percentage">GST (%)</label>
-                                <input type="number" id="gst-percentage" min="0" max="100" value="18">
+                                <input type="number" id="gst-percentage" min="0" max="100" value="18" readonly>
                             </div>
                             <div class="form-group">
                                 <label for="discount">Discount (%)</label>
@@ -366,26 +449,28 @@
                         <div class="form-row">
                             <div class="form-group">
                                 <label for="total-amount">Total Amount</label>
-                                <input type="text" id="total-amount" readonly>
+                                <input type="text" id="total-amount" readonly style="font-weight: bold; background-color: #e3f2fd;">
                             </div>
                         </div>
+                        
                         <div class="form-row">
                             <div class="form-group">
-                                <label for="payment-status">Payment Status</label>
-                                <select id="payment-status">
-                                    <option value="Full Paid">Full Paid</option>
-                                    <option value="Partially Paid">Partially Paid</option>
-                                    <option value="Not Paid">Not Paid</option>
-                                </select>
+                                <label>Payment Status</label>
+                                <div style="display:flex; gap:10px; height:24px; align-items:center;">
+                                    <label style="font-weight:normal; margin:0; display:flex; align-items:center;"><input type="radio" name="payment-status" value="Full Paid" checked> Full Paid</label>
+                                    <label style="font-weight:normal; margin:0; display:flex; align-items:center;"><input type="radio" name="payment-status" value="Partially Paid"> Partially Paid</label>
+                                    <label style="font-weight:normal; margin:0; display:flex; align-items:center;"><input type="radio" name="payment-status" value="Not Paid"> Not Paid</label>
+                                </div>
                             </div>
                             <div class="form-group">
-                                <label for="payment-mode">Payment Mode</label>
-                                <select id="payment-mode">
-                                    <option value="Cash">Cash</option>
-                                    <option value="Online">Online</option>
-                                </select>
+                                <label>Payment Mode</label>
+                                <div style="display:flex; gap:10px; height:24px; align-items:center;">
+                                    <label style="font-weight:normal; margin:0; display:flex; align-items:center;"><input type="radio" name="payment-mode" value="Cash" checked> Cash</label>
+                                    <label style="font-weight:normal; margin:0; display:flex; align-items:center;"><input type="radio" name="payment-mode" value="Online"> Online</label>
+                                </div>
                             </div>
                         </div>
+
                         <div class="form-row" id="paid-balance-row" style="display: none;">
                             <div class="form-group">
                                 <label for="paid-amount">Paid Amount</label>
@@ -393,11 +478,11 @@
                             </div>
                             <div class="form-group">
                                 <label for="balance-amount">Balance</label>
-                                <input type="number" id="balance-amount" readonly>
+                                <input type="number" id="balance-amount" readonly style="color: var(--danger-color); font-weight: bold;">
                             </div>
                         </div>
                     </div>
-                    <div style="text-align: right; margin-top: 1rem;">
+                    <div style="text-align: right; margin-top: 0.5rem;">
                         <button type="button" class="btn-primary" id="save-print-btn">Save & Print Invoice</button>
                     </div>
                 </form>
@@ -406,7 +491,7 @@
             <div id="sales-view" class="view">
                 <div class="header-row">
                     <h1>Sales History</h1>
-                    <div class="form-group" style="margin-bottom: 0; width: 250px;">
+                    <div class="form-group" style="margin-bottom: 0; width: 200px;">
                         <input type="date" id="sales-date-search">
                     </div>
                 </div>
@@ -417,8 +502,7 @@
                     <label><input type="radio" name="sales-status-filter" value="Not Paid"> Not Paid</label>
                 </div>
 
-                <div class="form-group">
-                    <label for="sales-search">Search Sales</label>
+                <div class="form-group" style="width: 300px; max-width: 100%;">
                     <input type="text" id="sales-search" placeholder="Search by invoice number or customer name...">
                 </div>
                 <table id="sales-table">
@@ -437,7 +521,7 @@
                 <div id="return-modal" class="modal">
                     <div class="modal-content">
                         <span class="close-btn">&times;</span>
-                        <h2 style="margin-bottom: 1.5rem;">Process Return</h2>
+                        <h2 style="margin-bottom: 1rem;">Process Return</h2>
                         <div class="form-group">
                             <label for="return-invoice-no">Invoice No.</label>
                             <input type="text" id="return-invoice-no" readonly>
@@ -450,7 +534,9 @@
                             <label for="return-quantity">Quantity to Return</label>
                             <input type="number" id="return-quantity" min="1">
                         </div>
-                        <button class="btn-danger" id="process-return-btn" style="width: 100%;">Process Return</button>
+                        <div style="text-align: right; margin-top: 1rem;">
+                            <button class="btn-danger" id="process-return-btn">Process Return</button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -458,7 +544,7 @@
             <div id="purchase-view" class="view">
                 <h1>Purchases</h1>
                 
-                <div id="purchase-dashboard-cards" class="dashboard-grid" style="margin-bottom: 2rem;">
+                <div id="purchase-dashboard-cards" class="dashboard-grid" style="margin-bottom: 1rem;">
                     <div class="dashboard-card">
                         <span class="card-icon">💰</span>
                         <div class="card-title">Total Amount</div>
@@ -507,10 +593,10 @@
                     <button type="submit" class="btn-success" id="add-purchase-btn">Add Purchase</button>
                 </form>
 
-                <div style="margin-top: 2rem;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 1rem;">
-                        <h2 style="margin-bottom: 0;">Purchase History</h2>
-                        <div class="form-group" style="margin-bottom: 0; width: 300px; max-width: 100%;">
+                <div style="margin-top: 1rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.5rem;">
+                        <h2 style="margin-bottom: 0; border: none;">Purchase History</h2>
+                        <div class="form-group" style="margin-bottom: 0; width: 250px; max-width: 100%;">
                             <input type="text" id="purchase-search" placeholder="Search by dealer or company...">
                         </div>
                     </div>
@@ -532,21 +618,29 @@
             </div>
 
             <div id="invoice-modal" class="modal">
-                <div class="modal-content">
+                <div class="modal-content" style="max-width: 600px;">
                     <span class="close-btn" onclick="document.getElementById('invoice-modal').style.display='none'">&times;</span>
-                    <h2>Invoice Bill</h2>
-                    <div id="invoice-details-container"></div>
-                    <h3 style="margin-top:1rem;">Return Item</h3>
-                    <select id="return-item-select"></select>
-                    <input type="number" id="return-item-qty" min="1" placeholder="Quantity">
-                    <button class="btn-danger" onclick="processReturnInInvoice()">Process Return</button>
+                    <h2 style="margin-bottom: 0.5rem;">Invoice Bill</h2>
+                    <div id="invoice-details-container" style="border: 1px solid #ccc; padding: 1rem; margin-bottom: 1rem; max-height: 400px; overflow-y: auto;"></div>
+                    <h3 style="margin-top: 1rem; margin-bottom: 0.5rem;">Return Item</h3>
+                    <div class="form-row" style="align-items: flex-end;">
+                        <div class="form-group" style="flex: 2;">
+                            <select id="return-item-select"></select>
+                        </div>
+                        <div class="form-group" style="flex: 1;">
+                            <input type="number" id="return-item-qty" min="1" placeholder="Quantity">
+                        </div>
+                        <div class="form-group">
+                            <button class="btn-danger" onclick="processReturnInInvoice()">Process Return</button>
+                        </div>
+                    </div>
                 </div>
             </div>
 
             <div id="report-view" class="view">
                 <div class="header-row">
                     <h1>Daily Sales Report</h1>
-                    <div class="form-group" style="margin-bottom: 0; width: 250px;">
+                    <div class="form-group" style="margin-bottom: 0; width: 200px;">
                         <input type="date" id="report-date-input" onchange="renderDailyReport()">
                     </div>
                 </div>
@@ -559,6 +653,12 @@
                         </div>
                     </div>
                     <div class="chart-card">
+                        <h3>GST Collection</h3>
+                        <div class="chart-container">
+                            <canvas id="gstChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-card">
                         <h3>Top 10 High Sale Items</h3>
                         <div class="chart-container">
                             <canvas id="topItemsChart"></canvas>
@@ -567,87 +667,73 @@
                 </div>
 
                 <div id="daily-report-print-area">
-                    <table class="invoice-table" style="width: 100%; border-collapse: collapse; margin-bottom: 2rem;">
+                    <table class="invoice-table" style="width: 100%; border-collapse: collapse; margin-bottom: 1rem;">
                         <thead>
-                            <tr style="background-color: #f6f9fc;">
-                                <th style="padding: 1rem; border: 1px solid #ccc; text-align: left;">Invoice No.</th>
-                                <th style="padding: 1rem; border: 1px solid #ccc; text-align: left;">Customer</th>
-                                <th style="padding: 1rem; border: 1px solid #ccc; text-align: left;">Mode</th>
-                                <th style="padding: 1rem; border: 1px solid #ccc; text-align: right;">Amount (₹)</th>
+                            <tr style="background-color: #e0e0e0;">
+                                <th style="padding: 0.5rem; border: 1px solid var(--border-color); text-align: left;">Invoice No.</th>
+                                <th style="padding: 0.5rem; border: 1px solid var(--border-color); text-align: left;">Customer</th>
+                                <th style="padding: 0.5rem; border: 1px solid var(--border-color); text-align: left;">Mode</th>
+                                <th style="padding: 0.5rem; border: 1px solid var(--border-color); text-align: right;">Amount (₹)</th>
                             </tr>
                         </thead>
                         <tbody id="daily-report-table-body"></tbody>
                     </table>
-                    <div style="display: flex; justify-content: space-between; align-items: flex-end; background-color: var(--card-bg); padding: 2rem; border-radius: var(--border-radius-lg); box-shadow: var(--shadow);">
-                        <div style="font-size: 1.1rem;">
-                            <p><strong>Cash:</strong> <span id="report-cash-total">₹0.00</span></p>
-                            <p><strong>Online:</strong> <span id="report-online-total">₹0.00</span></p>
-                            <p><strong>Credit:</strong> <span id="report-credit-total">₹0.00</span></p>
+                    <div style="display: flex; justify-content: space-between; align-items: flex-end; background-color: var(--card-bg); padding: 1rem; border: 1px solid var(--border-color); border-radius: var(--border-radius-sm); flex-wrap: wrap; gap: 1rem;">
+                        <div style="font-size: 12px; color: #455a64;">
+                            <p style="margin-bottom: 2px;"><strong>Cash:</strong> <span id="report-cash-total">₹0.00</span></p>
+                            <p style="margin-bottom: 2px;"><strong>Online:</strong> <span id="report-online-total">₹0.00</span></p>
+                            <p style="margin-bottom: 0;"><strong>Credit:</strong> <span id="report-credit-total">₹0.00</span></p>
                         </div>
-                        <div style="font-size: 1.5rem; color: var(--primary-color); font-weight: bold;">
-                            <p>Total: <span id="report-grand-total">₹0.00</span></p>
+                        <div style="font-size: 12px; color: #455a64; border-left: 1px solid var(--border-color); padding-left: 1rem;">
+                            <p style="margin-bottom: 2px;"><strong>CGST:</strong> <span id="report-cgst-total">₹0.00</span> | <strong>SGST:</strong> <span id="report-sgst-total">₹0.00</span></p>
+                            <p style="margin-bottom: 2px;"><strong>IGST:</strong> <span id="report-igst-total">₹0.00</span> | <strong>UGST:</strong> <span id="report-ugst-total">₹0.00</span></p>
+                            <p style="margin-bottom: 0; font-weight: bold;"><strong>Total GST Collected:</strong> <span id="report-total-gst">₹0.00</span></p>
+                        </div>
+                        <div style="font-size: 16px; color: var(--primary-color); font-weight: bold; width: 100%; text-align: right;">
+                            <p>Total Revenue: <span id="report-grand-total">₹0.00</span></p>
                         </div>
                     </div>
                 </div>
-                <button class="btn-primary" onclick="printDailyReport()" style="width: 100%; margin-top: 2rem;">🖨 Print Report</button>
+                <div style="text-align: right; margin-top: 1rem;">
+                    <button class="btn-primary" onclick="printDailyReport()">🖨 Print Report</button>
+                </div>
             </div>
             
-            <div id="settings-view" class="view">
-                <h1>Settings</h1>
-                <form id="settings-form">
-                    <div class="form-group">
-                        <label for="company-name">Company Name</label>
-                        <input type="text" id="company-name" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="company-phone">Phone No.</label>
-                        <input type="tel" id="company-phone" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="company-address">Address</label>
-                        <textarea id="company-address" rows="3" required></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label for="company-email">Email</label>
-                        <input type="email" id="company-email">
-                    </div>
-                    <div class="form-group">
-                        <label for="company-gstin">GSTIN</label>
-                        <input type="text" id="company-gstin">
-                    </div>
-                    <div class="form-group">
-                        <label for="upi-id">UPI ID</label>
-                        <input type="text" id="upi-id" placeholder="e.g., yourname@upi" required>
-                    </div>
-                    <button type="submit" class="btn-primary">Update Settings</button>
-                </form>
-            </div>
         </div>
     </div>
 
     <div id="login-modal" class="modal" style="display: none;">
-        <div class="modal-content" style="max-width: 400px;">
-            <h2 style="margin-bottom: 1.5rem; text-align: center; color: var(--primary-color);">System Login</h2>
-            <form id="login-form">
+        <div class="modal-content" style="max-width: 350px;">
+            <h2 style="margin-bottom: 1rem; text-align: center; color: var(--primary-color); border: none;">Phone Login</h2>
+            <div id="recaptcha-container"></div>
+            <form id="phone-login-form" style="margin-bottom: 0; box-shadow: none; border: none; padding: 0;">
                 <div class="form-group">
-                    <label for="login-email">Email Address</label>
-                    <input type="email" id="login-email" required>
+                    <label for="login-phone">Phone Number</label>
+                    <div style="display: flex; align-items: center; border: 1px solid #b0bec5; border-radius: 2px; background-color: #fff; height: 26px; overflow: hidden;">
+                        <span style="padding: 0 8px; border-right: 1px solid #b0bec5; display: flex; align-items: center; gap: 4px; background: #f5f5f5; height: 100%;">
+                            <img src="https://flagcdn.com/w20/in.png" alt="India Flag" style="width: 16px;"> +91
+                        </span>
+                        <input type="tel" id="login-phone" placeholder="Enter 10-digit number" pattern="[0-9]{10}" maxlength="10" required style="border: none !important; box-shadow: none !important; outline: none !important; width: 100% !important; height: 100% !important; padding: 0 0.4rem !important;">
+                    </div>
                 </div>
+                <button type="submit" class="btn-primary" style="width: 100%; margin-top: 0.5rem;">Send OTP</button>
+            </form>
+            <form id="otp-verify-form" style="display: none; margin-bottom: 0; box-shadow: none; border: none; padding: 0; margin-top: 1rem;">
                 <div class="form-group">
-                    <label for="login-password">Password</label>
-                    <input type="password" id="login-password" required>
+                    <label for="login-otp">Enter OTP</label>
+                    <input type="text" id="login-otp" required>
                 </div>
-                <button type="submit" class="btn-primary" style="width: 100%;">Sign In</button>
+                <button type="submit" class="btn-success" style="width: 100%;">Verify OTP</button>
             </form>
         </div>
     </div>
 
     <div id="password-modal" class="modal">
-        <div class="modal-content">
+        <div class="modal-content" style="max-width: 350px;">
             <span class="close-btn" id="password-close-btn">&times;</span>
-            <h2 style="margin-bottom: 1.5rem;">Enter Password</h2>
-            <form id="password-form">
-                <div class="form-group">
+            <h2 style="margin-bottom: 1rem; border: none;">Enter Password</h2>
+            <form id="password-form" style="margin-bottom: 0; box-shadow: none; border: none; padding: 0;">
+                <div class="form-group" style="margin-bottom: 1rem;">
                     <label for="password-input">Password</label>
                     <input type="password" id="password-input" required>
                 </div>
@@ -657,9 +743,9 @@
     </div>
 
     <div id="update-payment-modal" class="modal">
-      <div class="modal-content">
+      <div class="modal-content" style="max-width: 400px;">
         <span class="close-btn" onclick="document.getElementById('update-payment-modal').style.display='none'">&times;</span>
-        <h2>Update Payment</h2>
+        <h2 style="margin-bottom: 1rem;">Update Payment</h2>
 
         <div class="form-group">
           <label for="update-invoice-no">Invoice No.</label>
@@ -676,12 +762,14 @@
           <input type="number" id="update-paid-amount" min="0">
         </div>
 
-        <div class="form-group">
+        <div class="form-group" style="margin-bottom: 1rem;">
           <label for="update-balance">Balance</label>
           <input type="number" id="update-balance" readonly>
         </div>
 
-        <button class="btn-success" onclick="processUpdatePayment()">Save Payment</button>
+        <div style="text-align: right;">
+            <button class="btn-success" onclick="processUpdatePayment()">Save Payment</button>
+        </div>
       </div>
     </div>
 
@@ -726,13 +814,19 @@
         <div class="total-amount-box print-total-box">
             <p><strong>Subtotal:</strong> <span id="print-subtotal"></span></p>
             <p><strong>Discount:</strong> <span id="print-discount"></span></p>
-            <p><strong>GST (18%):</strong> <span id="print-gst"></span></p>
+            
+            <p id="print-cgst-row" style="display: none;"><strong>CGST (9%):</strong> <span id="print-cgst"></span></p>
+            <p id="print-sgst-row" style="display: none;"><strong>SGST (9%):</strong> <span id="print-sgst"></span></p>
+            <p id="print-ugst-row" style="display: none;"><strong>UGST (9%):</strong> <span id="print-ugst"></span></p>
+            <p id="print-igst-row" style="display: none;"><strong>IGST (18%):</strong> <span id="print-igst"></span></p>
+            <p id="print-total-gst-row" style="display: none;"><strong>Total GST:</strong> <span id="print-total-gst"></span></p>
+            
             <hr>
             <h3><strong>Grand Total:</strong> <span id="print-grand-total"></span></h3>
-            <p style="font-weight: bold; margin-top: 1rem;">Payment Status: <span id="print-payment-status"></span></p>
+            <p style="font-weight: bold; margin-top: 0.5rem;">Payment Status: <span id="print-payment-status"></span></p>
             <p id="print-paid-amount-row" style="display: none;">Paid Amount: <span id="print-paid-amount"></span></p>
             <p id="print-balance-row" style="display: none;">Balance: <span id="print-balance"></span></p>
-            <p style="margin-top: 1rem;">Payment Mode: <span id="print-payment-mode"></span></p>
+            <p style="margin-top: 0.5rem;">Payment Mode: <span id="print-payment-mode"></span></p>
         </div>
         <div id="print-qr-code-container" class="qr-code-container" style="display: none;"></div>
     </div>
@@ -743,7 +837,7 @@
             <p id="quotation-print-company-address"></p>
             <p>Phone: <span id="quotation-print-company-phone"></span> | Email: <span id="quotation-print-company-email"></span></p>
             <p>GSTIN: <span id="quotation-print-company-gstin"></span></p>
-            <h3 style="margin-top: 1rem; border: 1px solid #000; display: inline-block; padding: 0.5rem 2rem;">QUOTATION</h3>
+            <h3 style="margin-top: 0.5rem; border: 1px solid #000; display: inline-block; padding: 0.25rem 1rem;">QUOTATION</h3>
         </div>
         <hr class="print-divider">
         <div class="invoice-details print-details">
@@ -773,7 +867,13 @@
         <div class="total-amount-box print-total-box">
             <p><strong>Subtotal:</strong> <span id="quotation-print-subtotal"></span></p>
             <p><strong>Discount:</strong> <span id="quotation-print-discount"></span></p>
-            <p><strong>GST (18%):</strong> <span id="quotation-print-gst"></span></p>
+            
+            <p id="quotation-print-cgst-row" style="display: none;"><strong>CGST (9%):</strong> <span id="quotation-print-cgst"></span></p>
+            <p id="quotation-print-sgst-row" style="display: none;"><strong>SGST (9%):</strong> <span id="quotation-print-sgst"></span></p>
+            <p id="quotation-print-ugst-row" style="display: none;"><strong>UGST (9%):</strong> <span id="quotation-print-ugst"></span></p>
+            <p id="quotation-print-igst-row" style="display: none;"><strong>IGST (18%):</strong> <span id="quotation-print-igst"></span></p>
+            <p id="quotation-print-total-gst-row" style="display: none;"><strong>Total GST:</strong> <span id="quotation-print-total-gst"></span></p>
+            
             <hr>
             <h3><strong>Grand Total:</strong> <span id="quotation-print-grand-total"></span></h3>
         </div>
